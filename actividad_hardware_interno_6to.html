@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hardware Interno – 6to Grado</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN: Dark tech-lab aesthetic
+   Deep navy bg + electric violet accent +
+   neon green highlights. Feels like a real
+   computer lab diagnostic tool — exciting
+   for 11-12 year olds without being childish.
+═══════════════════════════════════════════ */
+:root {
+  --navy:    #0A0F1E;
+  --navy2:   #0F172A;
+  --navy3:   #1E293B;
+  --panel:   #162032;
+  --border:  rgba(99,102,241,.25);
+  --border2: rgba(255,255,255,.07);
+  --violet:  #6366F1;
+  --violet2: #818CF8;
+  --green:   #22D3EE;
+  --amber:   #FBBF24;
+  --rose:    #FB7185;
+  --emerald: #34D399;
+  --text:    #F1F5F9;
+  --muted:   #94A3B8;
+  --correct: #34D399;
+  --wrong:   #FB7185;
+  --glow-v:  rgba(99,102,241,.35);
+  --glow-g:  rgba(34,211,238,.25);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── scanline overlay ── */
+body::before {
+  content:'';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px
+  );
+}
+
+/* ── glow orbs ── */
+.orb {
+  position: fixed; border-radius: 50%; filter: blur(120px);
+  pointer-events: none; z-index: 0;
+  animation: orb-breathe ease-in-out infinite alternate;
+}
+@keyframes orb-breathe { from{opacity:.12} to{opacity:.22} }
+
+/* ── circuit grid ── */
+body::after {
+  content:'';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(99,102,241,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* ═══════════════
+   LAYOUT
+═══════════════ */
+#app {
+  position: relative; z-index: 10;
+  max-width: 900px; margin: 0 auto;
+  padding: 28px 18px 70px;
+}
+
+/* ═══════════════
+   SCREENS
+═══════════════ */
+.screen { display: none; }
+.screen.active {
+  display: block;
+  animation: screenIn .5s cubic-bezier(.22,1,.36,1);
+}
+@keyframes screenIn {
+  from { opacity:0; transform: translateY(24px) scale(.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+/* ═══════════════
+   WELCOME
+═══════════════ */
+.welcome-wrap {
+  background: linear-gradient(160deg, var(--panel) 0%, var(--navy2) 100%);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 52px 44px;
+  text-align: center;
+  box-shadow: 0 0 80px var(--glow-v);
+}
+
+.grade-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(99,102,241,.15); border: 1px solid var(--border);
+  padding: 6px 18px; border-radius: 999px;
+  font-size: .78rem; font-weight: 700; letter-spacing: .6px;
+  color: var(--violet2); margin-bottom: 24px; text-transform: uppercase;
+}
+
+.cpu-graphic {
+  position: relative; display: inline-block; margin-bottom: 24px;
+}
+.cpu-chip {
+  width: 110px; height: 110px;
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  border: 2px solid var(--violet);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.8rem;
+  box-shadow: 0 0 40px var(--glow-v), inset 0 0 20px rgba(99,102,241,.1);
+  animation: chipPulse 2.5s ease-in-out infinite;
+  margin: 0 auto;
+}
+@keyframes chipPulse {
+  0%,100%{ box-shadow: 0 0 40px var(--glow-v); }
+  50%    { box-shadow: 0 0 70px var(--glow-v), 0 0 120px rgba(99,102,241,.2); }
+}
+.cpu-pins {
+  position: absolute; top: 50%; left: -16px;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cpu-pins.right { left: auto; right: -16px; }
+.pin {
+  width: 14px; height: 4px; border-radius: 2px;
+  background: var(--violet);
+  opacity: .6; animation: pinBlink 1.5s ease-in-out infinite;
+}
+.pin:nth-child(2) { animation-delay: .3s; }
+.pin:nth-child(3) { animation-delay: .6s; }
+.pin:nth-child(4) { animation-delay: .9s; }
+@keyframes pinBlink { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+.welcome-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 800; line-height: 1.1; margin-bottom: 10px;
+}
+.welcome-title .t-violet { color: var(--violet2); }
+.welcome-title .t-green  { color: var(--green); }
+
+.welcome-desc {
+  color: var(--muted); font-size: 1rem; line-height: 1.75;
+  max-width: 520px; margin: 0 auto 28px;
+}
+
+.score-strip {
+  display: inline-flex; gap: 0; border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 32px;
+}
+.ss-cell {
+  padding: 16px 28px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.ss-cell:last-child { border-right: none; }
+.ss-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem; font-weight: 800; color: var(--violet2); line-height: 1;
+}
+.ss-lbl { font-size: .72rem; font-weight: 700; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
+
+.name-row {
+  display: flex; gap: 12px; max-width: 460px; margin: 0 auto;
+}
+.name-inp {
+  flex: 1; padding: 14px 18px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem; font-weight: 600; color: var(--text); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.name-inp:focus { border-color: var(--violet); box-shadow: 0 0 0 3px var(--glow-v); }
+.name-inp::placeholder { color: rgba(148,163,184,.5); }
+
+/* ═══════════════
+   BUTTONS
+═══════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 26px; border-radius: 12px; border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+  font-size: .95rem; cursor: pointer;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+}
+.btn:hover  { transform: translateY(-2px); }
+.btn:active { transform: scale(.97); }
+.btn-violet {
+  background: linear-gradient(135deg, var(--violet), #4F46E5);
+  color: #fff; box-shadow: 0 6px 24px var(--glow-v);
+}
+.btn-green {
+  background: linear-gradient(135deg, #0D9488, var(--green));
+  color: var(--navy); font-weight: 800;
+  box-shadow: 0 6px 24px var(--glow-g);
+}
+.btn-amber {
+  background: linear-gradient(135deg, #D97706, var(--amber));
+  color: var(--navy); font-weight: 800;
+  box-shadow: 0 6px 20px rgba(251,191,36,.3);
+}
+.btn-ghost {
+  background: transparent; color: var(--violet2);
+  border: 1px solid var(--border);
+}
+.btn-lg { padding: 16px 34px; font-size: 1.05rem; }
+
+/* ═══════════════
+   HUD
+═══════════════ */
+.hud {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--panel); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 12px 20px; margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.hud-name { flex: 1; font-weight: 700; color: var(--text); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-pts {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 1.05rem; color: var(--violet2);
+}
+.hud-stage {
+  background: rgba(99,102,241,.15); border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 12px;
+  font-size: .75rem; font-weight: 700; color: var(--muted);
+}
+
+.pbar-wrap {
+  height: 5px; background: rgba(255,255,255,.07);
+  border-radius: 99px; overflow: hidden; margin-bottom: 22px;
+}
+.pbar-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--violet), var(--green));
+  box-shadow: 0 0 10px var(--glow-v);
+  transition: width .6s cubic-bezier(.22,1,.36,1);
+}
+
+/* ═══════════════
+   PANEL CARD
+═══════════════ */
+.panel {
+  background: var(--panel); border: 1px solid var(--border2);
+  border-radius: 22px; padding: 26px 26px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.4); margin-bottom: 18px;
+}
+.panel-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .7px;
+  text-transform: uppercase; color: var(--green); margin-bottom: 6px;
+}
+.panel-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.45rem; font-weight: 800; color: var(--text); margin-bottom: 6px;
+}
+.panel-desc { font-size: .92rem; color: var(--muted); line-height: 1.65; }
+
+/* ═══════════════════════════════
+   STAGE 1 — COMPONENT EXPLORER
+   (click component, read, answer)
+═══════════════════════════════ */
+.explorer-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px; margin-bottom: 22px;
+}
+.exp-card {
+  background: rgba(255,255,255,.04); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 18px 14px; text-align: center;
+  cursor: pointer; transition: all .2s; position: relative;
+}
+.exp-card:hover {
+  border-color: var(--violet); background: rgba(99,102,241,.1);
+  transform: translateY(-3px); box-shadow: 0 8px 24px var(--glow-v);
+}
+.exp-card.active {
+  border-color: var(--green); background: rgba(34,211,238,.08);
+  box-shadow: 0 0 20px var(--glow-g);
+}
+.exp-card.answered-ok  { border-color: var(--correct); background: rgba(52,211,153,.08); }
+.exp-card.answered-err { border-color: var(--wrong);   background: rgba(251,113,133,.08); }
+.exp-icon { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+.exp-name { font-size: .82rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+.exp-badge {
+  position: absolute; top: 8px; right: 8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: .65rem; display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+}
+.exp-badge.ok  { background: var(--correct); color: var(--navy); }
+.exp-badge.err { background: var(--wrong);   color: var(--navy); }
+
+.exp-detail {
+  background: rgba(255,255,255,.03); border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px; margin-bottom: 18px;
+  display: none; animation: slideDown .3s ease;
+}
+.exp-detail.show { display: block; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+.exp-detail-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+}
+.exp-detail-icon { font-size: 2.8rem; }
+.exp-detail-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem; font-weight: 800; color: var(--green);
+}
+.exp-detail-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+.exp-detail-text { font-size: .92rem; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+
+.exp-question { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.exp-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.exp-opt {
+  padding: 11px 14px; border-radius: 11px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border2);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: .9rem;
+  font-weight: 600; color: var(--text); cursor: pointer;
+  transition: all .18s; text-align: left;
+}
+.exp-opt:hover:not(:disabled) { border-color: var(--violet); background: rgba(99,102,241,.15); }
+.exp-opt.correct { background: rgba(52,211,153,.15); border-color: var(--correct); color: var(--correct); animation: popY .35s; }
+.exp-opt.wrong   { background: rgba(251,113,133,.15); border-color: var(--wrong);   color: var(--wrong);   animation: shakX .35s; }
+.exp-opt:disabled { cursor: default; }
+@keyframes popY { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+@keyframes shakX { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.exp-fb {
+  margin-top: 12px; padding: 11px 15px; border-radius: 11px;
+  font-size: .88rem; font-weight: 700;
+  opacity: 0; transform: translateY(6px); transition: all .3s;
+}
+.exp-fb.show { opacity: 1; transform: translateY(0); }
+.exp-fb.ok  { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.3); color: var(--correct); }
+.exp-fb.bad { background: rgba(251,113,133,.12); border: 1px solid rgba(251,113,133,.3); color: var(--wrong); }
+
+.exp-progress-row {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.exp-counter { font-size: .85rem; font-weight: 700; color: var(--muted); }
+
+/* ═══════════════════════════════
+   STAGE 2 — DRAG COMPONENTS TO PC
+   (match component → function)
+═══════════════════════════════ */
+.match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.match-col-hdr {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .7px; color: var(--muted); margin-bottom: 12px;
+}
+.match-chip {
+  padding: 12px 16px; border-radius: 12px; margin-bottom: 9px;
+  border: 1px solid var(--border2); background: rgba(255,255,255,.04);
+  font-weight: 700; font-size: .9rem; cursor: pointer;
+  transition: all .2s; line-height: 1.3;
+}
+.match-chip:hover { border-color: var(--violet); background: rgba(99,102,241,.1); }
+.match-chip.sel   { border-color: var(--violet2); background: rgba(99,102,241,.2); box-shadow: 0 0 0 2px var(--glow-v); }
+.match-chip.m-ok  { border-color: var(--correct); background: rgba(52,211,153,.1); color: var(--correct); cursor: default; }
+.match-chip.m-err { border-color: var(--wrong);   background: rgba(251,113,133,.1); color: var(--wrong); }
+.match-status-bar {
+  text-align: center; padding: 10px; border-radius: 11px;
+  font-weight: 700; font-size: .88rem; margin-top: 14px;
+  display: none;
+}
+.match-status-bar.show { display: block; }
+.match-status-bar.ok  { background: rgba(52,211,153,.12); color: var(--correct); border: 1px solid rgba(52,211,153,.3); }
+.match-status-bar.bad { background: rgba(251,113,133,.12); color: var(--wrong);   border: 1px solid rgba(251,113,133,.3); }
+
+/* ═══════════════════════════════
+   STAGE 3 — TRUE / FALSE + FILL
+═══════════════════════════════ */
+.tf-list { display: flex; flex-direction: column; gap: 14px; }
+.tf-item {
+  background: rgba(255,255,255,.03); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 18px 20px;
+}
+.tf-question { font-size: .95rem; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
+.tf-btns { display: flex; gap: 10px; }
+.tf-btn {
+  padding: 9px 22px; border-radius: 10px; border: 1px solid var(--border2);
+  background: rgba(255,255,255,.05); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700; font-size: .88rem; color: var(--text); cursor: pointer;
+  transition: all .18s;
+}
+.tf-btn:hover:not(:disabled) { border-color: var(--violet); background: rgba(99,102,241,.15); }
+.tf-btn.v-ok  { background: rgba(52,211,153,.15); border-color: var(--correct); color: var(--correct); }
+.tf-btn.v-err { background: rgba(251,113,133,.15); border-color: var(--wrong);   color: var(--wrong); }
+.tf-btn:disabled { cursor: default; }
+.tf-explain {
+  margin-top: 10px; font-size: .82rem; color: var(--muted); line-height: 1.5;
+  padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,.03);
+  display: none;
+}
+.tf-explain.show { display: block; }
+
+/* ═══════════════
+   FINAL RESULTS
+═══════════════ */
+.result-wrap {
+  background: linear-gradient(160deg, var(--panel), var(--navy2));
+  border: 1px solid var(--border); border-radius: 28px;
+  padding: 52px 44px; text-align: center;
+  box-shadow: 0 0 80px var(--glow-v);
+}
+.result-trophy { font-size: 88px; display: block; margin-bottom: 14px; filter: drop-shadow(0 0 30px rgba(251,191,36,.5)); }
+.result-title {
+  font-family: 'Space Grotesk', sans-serif; font-size: 2rem;
+  font-weight: 800; color: var(--text); margin-bottom: 8px;
+}
+.result-sub { font-size: 1rem; color: var(--muted); margin-bottom: 30px; line-height: 1.7; }
+
+.score-cards {
+  display: flex; justify-content: center; gap: 18px;
+  flex-wrap: wrap; margin-bottom: 30px;
+}
+.r-card {
+  border-radius: 20px; padding: 24px 36px; min-width: 160px;
+}
+.r-card-a {
+  background: linear-gradient(135deg, #4338CA, var(--violet));
+  box-shadow: 0 8px 30px var(--glow-v);
+}
+.r-card-b {
+  background: linear-gradient(135deg, #0F766E, var(--green));
+  box-shadow: 0 8px 30px var(--glow-g);
+}
+.r-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.2rem; font-weight: 800; line-height: 1; color: #fff;
+}
+.r-den { font-size: 1.2rem; opacity: .7; }
+.r-lbl { font-size: .75rem; font-weight: 700; color: rgba(255,255,255,.75); margin-top: 4px; letter-spacing: .5px; }
+
+/* breakdown */
+.breakdown {
+  background: rgba(255,255,255,.03); border: 1px solid var(--border2);
+  border-radius: 18px; overflow: hidden; margin-bottom: 26px; text-align: left;
+}
+.bd-row {
+  display: flex; align-items: center; gap: 14px; padding: 13px 20px;
+  border-bottom: 1px solid var(--border2); font-size: .9rem;
+}
+.bd-row:last-child { border-bottom: none; }
+.bd-row.header { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.bd-act  { flex: 2; font-weight: 600; }
+.bd-pts  { flex: 1; text-align: right; }
+.pts-pill {
+  display: inline-block; padding: 3px 12px; border-radius: 6px;
+  font-size: .8rem; font-weight: 700;
+  background: rgba(99,102,241,.2); color: var(--violet2);
+}
+.pts-pill.total-pill { background: var(--violet); color: #fff; }
+
+/* logro box */
+.logro-box {
+  background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.25);
+  border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; text-align: left;
+}
+.logro-title { font-size: .8rem; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.logro-text  { font-size: .88rem; color: #CBD5E1; line-height: 1.7; }
+
+/* confetti */
+.cp {
+  position: fixed; z-index: 600; pointer-events: none;
+  opacity: 0; animation: cfall ease-in forwards;
+}
+@keyframes cfall {
+  0%  { opacity:1; transform: translateY(-20px) rotate(0deg); }
+  100%{ opacity:0; transform: translateY(110vh) rotate(800deg); }
+}
+
+/* ═══════════════
+   RESPONSIVE
+═══════════════ */
+@media(max-width:600px) {
+  .welcome-wrap { padding: 32px 18px; }
+  .explorer-grid { grid-template-columns: repeat(2, 1fr); }
+  .exp-opts { grid-template-columns: 1fr; }
+  .match-container { grid-template-columns: 1fr; }
+  .score-cards { gap: 12px; }
+  .result-wrap { padding: 32px 18px; }
+  .name-row { flex-direction: column; }
+  .score-strip { flex-direction: column; }
+  .ss-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .ss-cell:last-child { border-bottom: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- BG orbs -->
+<div class="orb" style="width:500px;height:500px;background:#4F46E5;top:-150px;left:-180px;animation-duration:9s"></div>
+<div class="orb" style="width:400px;height:400px;background:#0D9488;bottom:-100px;right:-150px;animation-duration:11s;animation-delay:2s"></div>
+
+<div id="app">
+
+<!-- ══════════════════════════════════
+     PANTALLA 0 — BIENVENIDA
+══════════════════════════════════ -->
+<div class="screen active" id="s-welcome">
+  <div class="welcome-wrap">
+    <div class="grade-badge">🎓 Sexto Grado de Primaria</div>
+
+    <div class="cpu-graphic">
+      <div class="cpu-pins">
+        <div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div>
+      </div>
+      <div class="cpu-chip">🖥️</div>
+      <div class="cpu-pins right">
+        <div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div>
+      </div>
+    </div>
+
+    <div class="welcome-title">
+      <span class="t-violet">Hardware</span> <span class="t-green">Interno</span><br>Tarea Digital Interactiva
+    </div>
+    <p class="welcome-desc">
+      Explora los componentes internos de la computadora — RAM, tarjeta madre, disco duro, microprocesador y tarjetas de expansión — y comprende cómo definen el rendimiento del equipo.
+    </p>
+
+    <div class="score-strip">
+      <div class="ss-cell"><div class="ss-val">3</div><div class="ss-lbl">Actividades</div></div>
+      <div class="ss-cell"><div class="ss-val">10</div><div class="ss-lbl">Puntuación máx.</div></div>
+      <div class="ss-cell"><div class="ss-val">3%</div><div class="ss-lbl">Vale del total</div></div>
+    </div>
+
+    <div class="name-row">
+      <input class="name-inp" id="player-name" type="text"
+             placeholder="✏️ Escribe tu nombre completo…" maxlength="50"/>
+      <button class="btn btn-violet btn-lg" onclick="startActivity()">Iniciar ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA 1 — EXPLORADOR DE COMPONENTES
+══════════════════════════════════ -->
+<div class="screen" id="s-stage1">
+  <div class="hud">
+    <span class="hud-name" id="h1-name">👤</span>
+    <span class="hud-pts">⬡ <span id="h1-pts">0.0</span>/10</span>
+    <span class="hud-stage">Actividad 1 / 3</span>
+  </div>
+  <div class="pbar-wrap"><div class="pbar-fill" id="pb1" style="width:0%"></div></div>
+
+  <div class="panel">
+    <div class="panel-eyebrow">⚙️ Actividad 1 — Componentes internos</div>
+    <div class="panel-title">Explorador de Hardware</div>
+    <div class="panel-desc">Haz clic en cada componente, lee su información y responde la pregunta. ¡Debes completar todos los componentes para continuar!</div>
+  </div>
+
+  <div class="panel">
+    <div class="explorer-grid" id="exp-grid"></div>
+    <div class="exp-detail" id="exp-detail"></div>
+    <div class="exp-progress-row">
+      <span class="exp-counter" id="exp-counter">0 / 6 completados</span>
+      <button class="btn btn-green" id="exp-next-btn" onclick="goToStage2()" style="display:none">
+        Siguiente actividad ➜
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA 2 — EMPAREJA COMPONENTE/FUNCIÓN
+══════════════════════════════════ -->
+<div class="screen" id="s-stage2">
+  <div class="hud">
+    <span class="hud-name" id="h2-name">👤</span>
+    <span class="hud-pts">⬡ <span id="h2-pts">0.0</span>/10</span>
+    <span class="hud-stage">Actividad 2 / 3</span>
+  </div>
+  <div class="pbar-wrap"><div class="pbar-fill" id="pb2" style="width:0%"></div></div>
+
+  <div class="panel">
+    <div class="panel-eyebrow">🔗 Actividad 2 — Funciones</div>
+    <div class="panel-title">Une el componente con su función</div>
+    <div class="panel-desc">Haz clic en un componente de la izquierda y luego en su función correcta de la derecha.</div>
+  </div>
+
+  <div class="panel">
+    <div class="match-container">
+      <div>
+        <div class="match-col-hdr">📦 Componente</div>
+        <div id="match-left"></div>
+      </div>
+      <div>
+        <div class="match-col-hdr">⚡ Función</div>
+        <div id="match-right"></div>
+      </div>
+    </div>
+    <div class="match-status-bar" id="match-sb"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:18px">
+      <button class="btn btn-green" id="match-next-btn" onclick="goToStage3()" style="display:none">
+        Siguiente actividad ➜
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA 3 — VERDADERO / FALSO
+══════════════════════════════════ -->
+<div class="screen" id="s-stage3">
+  <div class="hud">
+    <span class="hud-name" id="h3-name">👤</span>
+    <span class="hud-pts">⬡ <span id="h3-pts">0.0</span>/10</span>
+    <span class="hud-stage">Actividad 3 / 3</span>
+  </div>
+  <div class="pbar-wrap"><div class="pbar-fill" id="pb3" style="width:0%"></div></div>
+
+  <div class="panel">
+    <div class="panel-eyebrow">✅ Actividad 3 — Verdadero o Falso</div>
+    <div class="panel-title">¿Verdadero o Falso?</div>
+    <div class="panel-desc">Lee cada enunciado sobre los componentes internos y decide si es verdadero o falso.</div>
+  </div>
+
+  <div class="panel">
+    <div class="tf-list" id="tf-list"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-violet" id="tf-check-btn" onclick="checkTF()">✅ Verificar respuestas</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA 4 — RESULTADOS FINALES
+══════════════════════════════════ -->
+<div class="screen" id="s-final">
+  <div class="result-wrap">
+    <span class="result-trophy" id="r-trophy">🏆</span>
+    <div class="result-title" id="r-title">¡Tarea completada!</div>
+    <p class="result-sub" id="r-sub">Estos son tus resultados:</p>
+
+    <div class="score-cards">
+      <div class="r-card r-card-a">
+        <div class="r-val" id="r-score">0<span class="r-den">/10</span></div>
+        <div class="r-lbl">PUNTUACIÓN FINAL</div>
+      </div>
+      <div class="r-card r-card-b">
+        <div class="r-val" id="r-pct">0%</div>
+        <div class="r-lbl">PORCENTAJE (del 3%)</div>
+      </div>
+    </div>
+
+    <div class="breakdown" id="r-breakdown"></div>
+
+    <div class="logro-box">
+      <div class="logro-title">📋 Indicador de logro evaluado</div>
+      <div class="logro-text">
+        Analizar las funciones de los componentes internos del <strong>hardware</strong> como la
+        <strong>memoria RAM</strong>, <strong>tarjeta madre</strong>, <strong>disco duro</strong>,
+        <strong>microprocesador</strong> y <strong>tarjetas de red, video y sonido</strong>,
+        comprendiendo cómo estas características definen el rendimiento del equipo.
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" onclick="restartAll()">🔄 Intentar de nuevo</button>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+/* ═══════════════════════════════════════
+   GLOBAL STATE
+═══════════════════════════════════════ */
+let playerName = '';
+let rawScore   = 0;
+let s1pts = 0, s2pts = 0, s3pts = 0;
+const MAX = 10, PCT_W = 3;
+
+/* ═══════════════════════════════════════
+   STAGE 1 DATA — 6 components, 4 pts total
+   Each correct = 4/6 ≈ 0.667 pts
+═══════════════════════════════════════ */
+const COMPONENTS = [
+  {
+    id:'ram', icon:'💾', name:'Memoria RAM',
+    subtitle:'Random Access Memory',
+    desc:'La memoria RAM almacena temporalmente los datos e instrucciones que el procesador necesita en este momento. Cuanta más RAM tiene un equipo, más programas puede ejecutar al mismo tiempo sin volverse lento. Es una memoria volátil: se borra al apagar el equipo.',
+    q:'¿Qué sucede con los datos en la RAM al apagar la computadora?',
+    opts:['Se guardan permanentemente 💽','Se borran porque es volátil 🗑️','Se transfieren al disco duro 🔄','Se comprimen automáticamente 📦'],
+    correct:1,
+    explain:'La RAM es volátil: pierde toda la información cuando se corta la energía eléctrica.'
+  },
+  {
+    id:'mobo', icon:'🔌', name:'Tarjeta Madre',
+    subtitle:'Motherboard / Placa base',
+    desc:'La tarjeta madre es la placa principal que conecta y comunica todos los componentes del equipo. Contiene el socket del procesador, las ranuras de RAM, conectores SATA para el disco duro y puertos de expansión (PCIe). Sin ella, los demás componentes no podrían trabajar juntos.',
+    q:'¿Cuál es la función principal de la tarjeta madre?',
+    opts:['Almacenar el sistema operativo 📂','Procesar gráficos 3D 🎮','Conectar y comunicar todos los componentes 🔗','Controlar la velocidad del ventilador 🌀'],
+    correct:2,
+    explain:'La tarjeta madre actúa como el "esqueleto" que interconecta CPU, RAM, disco duro y tarjetas de expansión.'
+  },
+  {
+    id:'hdd', icon:'🗄️', name:'Disco Duro',
+    subtitle:'HDD / SSD — Almacenamiento',
+    desc:'El disco duro guarda permanentemente el sistema operativo, programas y archivos del usuario. Los discos HDD usan platos magnéticos giratorios, mientras que los SSD usan chips de memoria flash (más rápidos y silenciosos). Su capacidad se mide en gigabytes (GB) o terabytes (TB).',
+    q:'¿En qué se diferencia un SSD de un HDD?',
+    opts:['El SSD usa platos magnéticos 💿','El HDD es más rápido ⚡','El SSD usa memoria flash y es más rápido 🚀','Ambos son exactamente iguales 🤝'],
+    correct:2,
+    explain:'Los SSD usan chips de memoria flash sin partes móviles, lo que los hace más veloces y resistentes que los HDD.'
+  },
+  {
+    id:'cpu', icon:'⚙️', name:'Microprocesador',
+    subtitle:'CPU — Unidad Central de Proceso',
+    desc:'El microprocesador (CPU) es el "cerebro" del equipo. Ejecuta millones de instrucciones por segundo, realiza cálculos matemáticos y lógicos, y coordina el funcionamiento del sistema. Su velocidad se mide en GHz (gigahercios) y puede tener varios núcleos para hacer varias tareas a la vez.',
+    q:'¿Cómo se mide la velocidad de un microprocesador?',
+    opts:['En gigabytes (GB) 💾','En gigahercios (GHz) ⚡','En megapíxeles (MP) 📷','En vatios (W) 🔋'],
+    correct:1,
+    explain:'La velocidad del CPU se expresa en GHz. Un mayor número de GHz y más núcleos permiten mayor rendimiento.'
+  },
+  {
+    id:'netcard', icon:'📡', name:'Tarjeta de Red',
+    subtitle:'NIC — Network Interface Card',
+    desc:'La tarjeta de red permite que la computadora se conecte a una red local (LAN) o a internet. Puede ser cableada (puerto Ethernet RJ-45) o inalámbrica (Wi-Fi). Convierte los datos del equipo en señales para transmitirlas por cable o radio.',
+    q:'¿Para qué sirve la tarjeta de red?',
+    opts:['Para mejorar el sonido 🔊','Para conectar el equipo a una red o internet 🌐','Para acelerar el disco duro 🗄️','Para añadir más RAM 💾'],
+    correct:1,
+    explain:'La tarjeta de red (NIC) permite la comunicación entre el equipo y una red LAN o internet, por cable o inalámbrico.'
+  },
+  {
+    id:'gpu', icon:'🖼️', name:'Tarjetas de Video y Sonido',
+    subtitle:'GPU + Tarjeta de sonido',
+    desc:'La tarjeta de video (GPU) procesa y genera las imágenes que se muestran en el monitor. Es especialmente importante para juegos, edición de video y diseño gráfico. La tarjeta de sonido convierte señales digitales en audio analógico que sale por los altavoces, y también captura sonido del micrófono.',
+    q:'¿Qué componente procesa las imágenes que se muestran en el monitor?',
+    opts:['La memoria RAM 💾','El disco duro 🗄️','La tarjeta de video (GPU) 🖼️','La tarjeta madre 🔌'],
+    correct:2,
+    explain:'La GPU (tarjeta de video) está especializada en procesar y renderizar las imágenes con alta velocidad.'
+  },
+];
+
+const S1_TOTAL  = 4;
+const S1_PER    = S1_TOTAL / COMPONENTS.length; // ≈0.667
+
+let expDone     = new Set();
+let expAnswered = new Set();
+let expActive   = null;
+
+/* ═══════════════════════════════════════
+   STAGE 2 DATA — 8 pairs, 3 pts total
+═══════════════════════════════════════ */
+const MATCH_PAIRS = [
+  { left:'⚙️ Microprocesador',    right:'Ejecuta instrucciones y realiza cálculos a millones por segundo' },
+  { left:'💾 Memoria RAM',        right:'Almacena datos temporales mientras el equipo está encendido' },
+  { left:'🗄️ Disco duro (SSD)',   right:'Guarda permanentemente el sistema operativo y archivos' },
+  { left:'🔌 Tarjeta madre',      right:'Conecta e interconecta todos los componentes del equipo' },
+  { left:'📡 Tarjeta de red',     right:'Permite la conexión a internet y redes LAN' },
+  { left:'🖼️ Tarjeta de video',   right:'Procesa y genera las imágenes que aparecen en el monitor' },
+  { left:'🔊 Tarjeta de sonido',  right:'Convierte señales digitales en audio para los altavoces' },
+  { left:'🌀 Disipador/Ventilador',right:'Enfría el microprocesador para evitar sobrecalentamiento' },
+];
+const S2_TOTAL = 3;
+const S2_PER   = S2_TOTAL / MATCH_PAIRS.length; // 0.375
+
+let matchLeftSel  = null;
+let matchMatched  = new Set();
+let matchCorrect2 = 0;
+
+/* ═══════════════════════════════════════
+   STAGE 3 DATA — 8 T/F, 3 pts total
+═══════════════════════════════════════ */
+const TF_ITEMS = [
+  { stmt:'La memoria RAM guarda los archivos aunque la computadora esté apagada.', answer:false, explain:'La RAM es volátil: pierde toda la información al cortar la energía.' },
+  { stmt:'El microprocesador es el componente que ejecuta todas las instrucciones del equipo.', answer:true, explain:'El CPU (microprocesador) es el "cerebro" que procesa todas las operaciones.' },
+  { stmt:'Un disco SSD usa platos magnéticos giratorios como el HDD.', answer:false, explain:'Los SSD usan memoria flash sin partes móviles; los platos magnéticos son de los HDD.' },
+  { stmt:'La tarjeta madre conecta todos los componentes internos del equipo.', answer:true, explain:'La placa base es la que interconecta CPU, RAM, disco duro y tarjetas de expansión.' },
+  { stmt:'La tarjeta de red solo puede conectarse mediante cable (Ethernet).', answer:false, explain:'Existen tarjetas de red inalámbricas (Wi-Fi) además de las cableadas (Ethernet).' },
+  { stmt:'Cuanta más RAM tiene un equipo, más programas puede ejecutar simultáneamente.', answer:true, explain:'Mayor RAM permite tener más datos activos en memoria, mejorando el multitarea.' },
+  { stmt:'La tarjeta de video (GPU) es importante para procesar imágenes y gráficos.', answer:true, explain:'La GPU está diseñada para renderizar imágenes de alta complejidad con rapidez.' },
+  { stmt:'El disco duro almacena los datos de forma temporal, igual que la RAM.', answer:false, explain:'El disco duro almacena datos de forma permanente, a diferencia de la RAM que es volátil.' },
+];
+const S3_TOTAL = 3;
+const S3_PER   = S3_TOTAL / TF_ITEMS.length; // 0.375
+
+let tfAnswers = new Array(TF_ITEMS.length).fill(null);
+let tfChecked = false;
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.animation='none'; el.offsetHeight; el.style.animation='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateHUD() {
+  const disp = rawScore.toFixed(1);
+  ['h1','h2','h3'].forEach(p => {
+    const nel = document.getElementById(p+'-name');
+    const pel = document.getElementById(p+'-pts');
+    if (nel) nel.textContent = '👤 ' + playerName;
+    if (pel) pel.textContent = disp;
+  });
+  const pct = (rawScore / MAX) * 100;
+  ['pb1','pb2','pb3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = pct + '%';
+  });
+}
+
+/* ═══════════════════════════════════════
+   START
+═══════════════════════════════════════ */
+function startActivity() {
+  const v = document.getElementById('player-name').value.trim();
+  playerName = v || 'Estudiante';
+  rawScore = 0; s1pts = 0; s2pts = 0; s3pts = 0;
+  expDone = new Set(); expAnswered = new Set(); expActive = null;
+  matchMatched = new Set(); matchLeftSel = null; matchCorrect2 = 0;
+  tfAnswers = new Array(TF_ITEMS.length).fill(null); tfChecked = false;
+
+  buildExplorer();
+  showScreen('s-stage1');
+  updateHUD();
+}
+
+/* ═══════════════════════════════════════
+   STAGE 1 — EXPLORER
+═══════════════════════════════════════ */
+function buildExplorer() {
+  const grid = document.getElementById('exp-grid');
+  grid.innerHTML = '';
+  COMPONENTS.forEach(comp => {
+    const el = document.createElement('div');
+    el.className = 'exp-card';
+    el.id = 'ec-' + comp.id;
+    el.innerHTML = `<span class="exp-icon">${comp.icon}</span><div class="exp-name">${comp.name}</div>`;
+    el.addEventListener('click', () => openComponent(comp.id));
+    grid.appendChild(el);
+  });
+  document.getElementById('exp-counter').textContent = '0 / ' + COMPONENTS.length + ' completados';
+  document.getElementById('exp-next-btn').style.display = 'none';
+  document.getElementById('exp-detail').className = 'exp-detail';
+  document.getElementById('exp-detail').innerHTML = '';
+}
+
+function openComponent(id) {
+  const comp = COMPONENTS.find(c => c.id === id);
+  if (!comp) return;
+  expActive = id;
+
+  document.querySelectorAll('.exp-card').forEach(el => el.classList.remove('active'));
+  document.getElementById('ec-' + id).classList.add('active');
+
+  const detail = document.getElementById('exp-detail');
+  const already = expAnswered.has(id);
+
+  let optsHtml = '';
+  comp.opts.forEach((opt, i) => {
+    let cls = '';
+    if (already) {
+      cls = (i === comp.correct) ? 'correct' : '';
+    }
+    optsHtml += `<button class="exp-opt ${cls}" onclick="answerExp('${id}',${i})"
+      ${already ? 'disabled' : ''}>${opt}</button>`;
+  });
+
+  let fbHtml = '';
+  if (already) {
+    fbHtml = `<div class="exp-fb ok show">✅ ${comp.explain}</div>`;
+  }
+
+  detail.innerHTML = `
+    <div class="exp-detail-header">
+      <span class="exp-detail-icon">${comp.icon}</span>
+      <div>
+        <div class="exp-detail-name">${comp.name}</div>
+        <div class="exp-detail-sub">${comp.subtitle}</div>
+      </div>
+    </div>
+    <div class="exp-detail-text">${comp.desc}</div>
+    <div class="exp-question">${comp.q}</div>
+    <div class="exp-opts">${optsHtml}</div>
+    ${fbHtml}
+  `;
+  detail.classList.add('show');
+  detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function answerExp(id, idx) {
+  if (expAnswered.has(id)) return;
+  const comp = COMPONENTS.find(c => c.id === id);
+  const opts = document.querySelectorAll('.exp-opts .exp-opt');
+  opts.forEach(b => b.disabled = true);
+
+  let fb = document.querySelector('.exp-fb');
+  if (!fb) {
+    fb = document.createElement('div');
+    fb.className = 'exp-fb';
+    document.querySelector('.exp-opts').after(fb);
+  }
+
+  expAnswered.add(id);
+  if (idx === comp.correct) {
+    opts[idx].classList.add('correct');
+    const pts = +S1_PER.toFixed(4);
+    s1pts += pts;
+    rawScore = Math.min(MAX, rawScore + pts);
+    updateHUD();
+    fb.className = 'exp-fb ok show';
+    fb.textContent = '✅ ¡Correcto! ' + comp.explain;
+    document.getElementById('ec-'+id).classList.remove('active');
+    document.getElementById('ec-'+id).classList.add('answered-ok');
+    const badge = document.createElement('span');
+    badge.className = 'exp-badge ok'; badge.textContent = '✓';
+    document.getElementById('ec-'+id).appendChild(badge);
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[comp.correct].classList.add('correct');
+    fb.className = 'exp-fb bad show';
+    fb.textContent = '❌ Incorrecto. ' + comp.explain;
+    document.getElementById('ec-'+id).classList.remove('active');
+    document.getElementById('ec-'+id).classList.add('answered-err');
+    const badge = document.createElement('span');
+    badge.className = 'exp-badge err'; badge.textContent = '✗';
+    document.getElementById('ec-'+id).appendChild(badge);
+  }
+
+  expDone.add(id);
+  document.getElementById('exp-counter').textContent =
+    expDone.size + ' / ' + COMPONENTS.length + ' completados';
+
+  if (expDone.size === COMPONENTS.length) {
+    s1pts = +s1pts.toFixed(2);
+    document.getElementById('exp-next-btn').style.display = 'inline-flex';
+  }
+}
+
+/* ═══════════════════════════════════════
+   STAGE 2 — MATCH
+═══════════════════════════════════════ */
+function goToStage2() {
+  buildMatch();
+  showScreen('s-stage2');
+  updateHUD();
+}
+
+function buildMatch() {
+  matchMatched = new Set(); matchLeftSel = null; matchCorrect2 = 0;
+  document.getElementById('match-sb').className = 'match-status-bar';
+  document.getElementById('match-sb').textContent = '';
+  document.getElementById('match-next-btn').style.display = 'none';
+
+  const shuffR = [...MATCH_PAIRS].sort(() => Math.random() - .5);
+  const lEl = document.getElementById('match-left');
+  const rEl = document.getElementById('match-right');
+  lEl.innerHTML = ''; rEl.innerHTML = '';
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const el = document.createElement('div');
+    el.className = 'match-chip';
+    el.dataset.idx = i;
+    el.textContent = pair.left;
+    el.addEventListener('click', () => selectMatchLeft(i, el));
+    lEl.appendChild(el);
+  });
+
+  shuffR.forEach(pair => {
+    const origIdx = MATCH_PAIRS.findIndex(p => p.right === pair.right);
+    const el = document.createElement('div');
+    el.className = 'match-chip';
+    el.dataset.idx = origIdx;
+    el.textContent = pair.right;
+    el.addEventListener('click', () => selectMatchRight(origIdx, el));
+    rEl.appendChild(el);
+  });
+}
+
+function selectMatchLeft(idx, el) {
+  if (matchMatched.has(idx)) return;
+  document.querySelectorAll('#match-left .match-chip').forEach(e => e.classList.remove('sel'));
+  matchLeftSel = idx;
+  el.classList.add('sel');
+}
+
+function selectMatchRight(idx, el) {
+  const sb = document.getElementById('match-sb');
+  if (matchLeftSel === null) {
+    sb.className = 'match-status-bar show bad';
+    sb.textContent = '⚠️ Primero selecciona un componente de la izquierda.';
+    return;
+  }
+  if (matchMatched.has(matchLeftSel)) { matchLeftSel = null; return; }
+
+  if (matchLeftSel === idx) {
+    matchMatched.add(idx);
+    matchCorrect2++;
+    const lEl2 = document.querySelector(`#match-left .match-chip[data-idx="${idx}"]`);
+    if (lEl2) { lEl2.classList.remove('sel'); lEl2.classList.add('m-ok'); }
+    el.classList.add('m-ok');
+
+    const pts = +S2_PER.toFixed(4);
+    s2pts += pts;
+    rawScore = Math.min(MAX, rawScore + pts);
+    updateHUD();
+
+    sb.className = 'match-status-bar show ok';
+    sb.textContent = `✅ ¡Correcto! (${matchMatched.size}/${MATCH_PAIRS.length})`;
+
+    if (matchMatched.size === MATCH_PAIRS.length) {
+      s2pts = +s2pts.toFixed(2);
+      sb.textContent = '🏆 ¡Emparejaste todos correctamente!';
+      document.getElementById('match-next-btn').style.display = 'inline-flex';
+    }
+  } else {
+    el.classList.add('m-err');
+    sb.className = 'match-status-bar show bad';
+    sb.textContent = '❌ Esa combinación es incorrecta. ¡Inténtalo de nuevo!';
+    setTimeout(() => el.classList.remove('m-err'), 700);
+  }
+  matchLeftSel = null;
+  document.querySelectorAll('#match-left .match-chip').forEach(e => e.classList.remove('sel'));
+}
+
+/* ═══════════════════════════════════════
+   STAGE 3 — TRUE/FALSE
+═══════════════════════════════════════ */
+function goToStage3() {
+  buildTF();
+  showScreen('s-stage3');
+  updateHUD();
+}
+
+function buildTF() {
+  tfAnswers = new Array(TF_ITEMS.length).fill(null);
+  tfChecked = false;
+  document.getElementById('tf-check-btn').style.display = 'inline-flex';
+  const list = document.getElementById('tf-list');
+  list.innerHTML = '';
+
+  TF_ITEMS.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-item';
+    div.innerHTML = `
+      <div class="tf-question">${i+1}. ${item.stmt}</div>
+      <div class="tf-btns">
+        <button class="tf-btn" id="tf-v-${i}" onclick="setTF(${i},true)">✅ Verdadero</button>
+        <button class="tf-btn" id="tf-f-${i}" onclick="setTF(${i},false)">❌ Falso</button>
+      </div>
+      <div class="tf-explain" id="tfe-${i}">${item.explain}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function setTF(i, val) {
+  if (tfChecked) return;
+  tfAnswers[i] = val;
+  const vBtn = document.getElementById('tf-v-'+i);
+  const fBtn = document.getElementById('tf-f-'+i);
+  vBtn.style.borderColor = val ? 'var(--violet2)' : '';
+  vBtn.style.background  = val ? 'rgba(99,102,241,.2)' : '';
+  fBtn.style.borderColor = !val ? 'var(--violet2)' : '';
+  fBtn.style.background  = !val ? 'rgba(99,102,241,.2)' : '';
+}
+
+function checkTF() {
+  const unanswered = tfAnswers.filter(a => a === null).length;
+  if (unanswered > 0) {
+    alert(`⚠️ Aún faltan ${unanswered} pregunta(s) por responder.`);
+    return;
+  }
+  tfChecked = true;
+  document.getElementById('tf-check-btn').style.display = 'none';
+  let correct = 0;
+
+  TF_ITEMS.forEach((item, i) => {
+    const vBtn = document.getElementById('tf-v-'+i);
+    const fBtn = document.getElementById('tf-f-'+i);
+    const expl = document.getElementById('tfe-'+i);
+    vBtn.disabled = true; fBtn.disabled = true;
+
+    const userAns = tfAnswers[i];
+    if (userAns === item.answer) {
+      correct++;
+      const btn = userAns ? vBtn : fBtn;
+      btn.classList.add('v-ok');
+    } else {
+      const wrongBtn   = userAns ? vBtn : fBtn;
+      const correctBtn = item.answer ? vBtn : fBtn;
+      wrongBtn.classList.add('v-err');
+      correctBtn.classList.add('v-ok');
+    }
+    expl.classList.add('show');
+  });
+
+  const pts = +(correct * S3_PER).toFixed(2);
+  s3pts = pts;
+  rawScore = Math.min(MAX, rawScore + pts);
+  updateHUD();
+
+  setTimeout(goToFinal, 1800);
+}
+
+/* ═══════════════════════════════════════
+   FINAL
+═══════════════════════════════════════ */
+function goToFinal() {
+  rawScore = Math.min(MAX, rawScore);
+  const disp   = +rawScore.toFixed(1);
+  const pctVal = +((rawScore / MAX) * PCT_W).toFixed(2);
+
+  let trophy, title, sub;
+  const r = rawScore / MAX;
+  if (r >= .9)      { trophy='🥇'; title='¡Excelente rendimiento!';   sub='Demostraste dominio completo de los componentes internos del hardware. ¡Sobresaliente! 🎉'; }
+  else if (r >= .75){ trophy='🏆'; title='¡Muy bien hecho!';          sub='Comprendes bien el hardware interno. Repasa los detalles menores para perfeccionar. 💪'; }
+  else if (r >= .5) { trophy='📘'; title='¡Buen esfuerzo!';           sub='Tienes una base sólida. Revisa los componentes que fallaste para fortalecer tu aprendizaje. 🌟'; }
+  else              { trophy='🌱'; title='¡Sigue practicando!';       sub='Te recomendamos repasar las funciones de cada componente interno. ¡Con práctica lo dominarás! 💡'; }
+
+  document.getElementById('r-trophy').textContent  = trophy;
+  document.getElementById('r-title').textContent   = title;
+  document.getElementById('r-sub').textContent     = sub;
+  document.getElementById('r-score').innerHTML     = `${disp}<span class="r-den">/10</span>`;
+  document.getElementById('r-pct').textContent     = pctVal + '%';
+
+  // Breakdown
+  const bd = document.getElementById('r-breakdown');
+  const s1c = Math.round(s1pts / S1_PER);
+  const s2c = Math.round(s2pts / S2_PER);
+  const s3c = Math.round(s3pts / S3_PER);
+
+  bd.innerHTML = `
+    <div class="bd-row header">
+      <div class="bd-act">Actividad</div>
+      <div class="bd-pts">Puntos</div>
+    </div>
+    <div class="bd-row">
+      <div class="bd-act">⚙️ Explorador de componentes (${s1c}/${COMPONENTS.length})</div>
+      <div class="bd-pts"><span class="pts-pill">${s1pts.toFixed(1)} / ${S1_TOTAL}</span></div>
+    </div>
+    <div class="bd-row">
+      <div class="bd-act">🔗 Une componente y función (${s2c}/${MATCH_PAIRS.length})</div>
+      <div class="bd-pts"><span class="pts-pill">${s2pts.toFixed(1)} / ${S2_TOTAL}</span></div>
+    </div>
+    <div class="bd-row">
+      <div class="bd-act">✅ Verdadero o Falso (${s3c}/${TF_ITEMS.length})</div>
+      <div class="bd-pts"><span class="pts-pill">${s3pts.toFixed(1)} / ${S3_TOTAL}</span></div>
+    </div>
+    <div class="bd-row">
+      <div class="bd-act"><strong>TOTAL</strong></div>
+      <div class="bd-pts"><span class="pts-pill total-pill">${disp}/10 → ${pctVal}%</span></div>
+    </div>
+  `;
+
+  if (r >= .7) launchConfetti();
+  showScreen('s-final');
+}
+
+/* ═══════════════════════════════════════
+   RESTART
+═══════════════════════════════════════ */
+function restartAll() {
+  rawScore = 0; s1pts = 0; s2pts = 0; s3pts = 0;
+  expDone = new Set(); expAnswered = new Set(); expActive = null;
+  matchMatched = new Set(); matchLeftSel = null; matchCorrect2 = 0;
+  tfAnswers = new Array(TF_ITEMS.length).fill(null); tfChecked = false;
+  document.getElementById('player-name').value = '';
+  showScreen('s-welcome');
+}
+
+/* ═══════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════ */
+function launchConfetti() {
+  const cols = ['#6366F1','#22D3EE','#FBBF24','#34D399','#FB7185','#A78BFA','#F472B6'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'cp';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = cols[Math.floor(Math.random()*cols.length)];
+    p.style.width  = (7+Math.random()*9)+'px';
+    p.style.height = (9+Math.random()*12)+'px';
+    p.style.borderRadius = Math.random()>.5 ? '50%' : '3px';
+    p.style.animationDelay    = (Math.random()*1.6)+'s';
+    p.style.animationDuration = (1.4+Math.random()*1.4)+'s';
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(), 4500);
+  }
+}
+
+/* Enter to start */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('player-name')
+    .addEventListener('keydown', e => { if(e.key==='Enter') startActivity(); });
+});
+</script>
+</body>
+</html>
