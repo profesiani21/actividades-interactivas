@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarea N°2 - Redes de Comunicación | Formación Tecnológica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#dbeafe; --bg2:#ede9fe; --bg3:#fce7f3;
+    --ink:#1e293b; --muted:#64748b;
+    --card:#ffffff; --line:#e2e8f0;
+    --primary:#4f46e5; --primary-d:#4338ca;
+    --accent:#0ea5e9; --good:#16a34a; --bad:#dc2626; --warn:#f59e0b;
+    --w1:#ef4444; --w2:#f59e0b; --w3:#10b981; --w4:#0ea5e9; --w5:#8b5cf6; --w6:#ec4899;
+    --display:'Fredoka','Trebuchet MS','Segoe UI',system-ui,sans-serif;
+    --body:'Nunito','Trebuchet MS','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 10% -10%, var(--bg1), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, var(--bg3), transparent 55%),
+      linear-gradient(160deg, var(--bg2), #f8fafc 70%);
+    min-height:100vh;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:24px 16px 80px;}
+
+  /* Header */
+  .hero{
+    background:linear-gradient(135deg, var(--primary), #6366f1 55%, var(--accent));
+    color:#fff;border-radius:24px;padding:26px 26px 24px;
+    box-shadow:0 18px 40px -18px rgba(79,70,229,.6);
+    position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;inset:0;opacity:.18;
+    background-image:radial-gradient(#fff 1.4px, transparent 1.6px);
+    background-size:18px 18px;
+  }
+  .hero h1{font-family:var(--display);font-weight:700;margin:0 0 4px;font-size:clamp(22px,4.6vw,32px);letter-spacing:.3px;position:relative;}
+  .hero .sub{margin:0;opacity:.95;font-weight:600;position:relative;}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;position:relative;}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    backdrop-filter:blur(4px);padding:6px 12px;border-radius:999px;font-weight:700;font-size:13px;}
+
+  .name-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;position:relative;}
+  .name-row input{
+    flex:1 1 200px;border:none;border-radius:12px;padding:10px 14px;
+    font-family:var(--body);font-size:15px;font-weight:600;color:var(--ink);
+    background:rgba(255,255,255,.92);outline:none;
+  }
+  .name-row input::placeholder{color:#94a3b8;}
+
+  /* Cards */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:22px;margin-top:20px;box-shadow:0 10px 30px -22px rgba(30,41,59,.5);
+  }
+  .step{
+    display:inline-flex;align-items:center;gap:10px;margin:0 0 4px;
+  }
+  .chip{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+    background:var(--primary);color:#fff;font-family:var(--display);font-weight:700;font-size:18px;
+    box-shadow:0 6px 14px -6px var(--primary);
+  }
+  .card h2{font-family:var(--display);font-weight:600;margin:0;font-size:20px;}
+  .pts-tag{margin-left:auto;background:#eef2ff;color:var(--primary-d);font-weight:800;
+    padding:4px 12px;border-radius:999px;font-size:13px;border:1px solid #c7d2fe;}
+  .desc{color:var(--muted);font-weight:600;margin:8px 0 16px;font-size:14.5px;}
+
+  /* Word list */
+  .wordlist{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .wtag{
+    padding:7px 14px;border-radius:999px;font-weight:800;font-size:14px;letter-spacing:.5px;
+    background:#f1f5f9;color:#475569;border:2px solid #e2e8f0;transition:.25s;
+    display:flex;align-items:center;gap:6px;
+  }
+  .wtag.done{color:#fff;border-color:transparent;transform:scale(1.02);}
+  .wtag.done::before{content:"✓";font-weight:900;}
+
+  /* Word search grid */
+  .grid-shell{display:flex;justify-content:center;}
+  .grid{
+    display:grid;gap:4px;touch-action:none;user-select:none;-webkit-user-select:none;
+    width:100%;max-width:520px;
+  }
+  .cell{
+    aspect-ratio:1/1;display:grid;place-items:center;border-radius:8px;
+    background:#f8fafc;border:1px solid #e8edf3;cursor:pointer;
+    font-weight:800;color:#334155;font-size:clamp(13px,3.4vw,20px);
+    transition:background .12s, color .12s, transform .12s;
+    touch-action:none;
+  }
+  .cell.temp{background:var(--warn);color:#fff;transform:scale(1.05);box-shadow:0 4px 10px -3px var(--warn);}
+  .cell.found{color:#fff;border-color:transparent;}
+  .hint{font-size:13px;color:var(--muted);font-weight:600;text-align:center;margin-top:12px;}
+
+  /* Fill blanks */
+  .q{padding:14px 0;border-bottom:1px dashed var(--line);}
+  .q:last-child{border-bottom:none;}
+  .q .num{font-weight:800;color:var(--primary);margin-right:4px;}
+  .q p{margin:0 0 10px;font-weight:700;font-size:15.5px;}
+  .q select{
+    width:100%;font-family:var(--body);font-weight:700;font-size:15px;color:var(--ink);
+    padding:11px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;
+    outline:none;cursor:pointer;transition:.2s;
+  }
+  .q select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15);}
+  .q.right select{border-color:var(--good);background:#f0fdf4;}
+  .q.wrong select{border-color:var(--bad);background:#fef2f2;}
+  .feedback{font-size:13.5px;font-weight:700;margin-top:8px;display:none;}
+  .q.right .feedback{display:block;color:var(--good);}
+  .q.wrong .feedback{display:block;color:var(--bad);}
+
+  /* Help / review */
+  details.review{margin-top:18px;border:1px dashed #c7d2fe;border-radius:14px;background:#f5f7ff;padding:4px 16px;}
+  details.review summary{cursor:pointer;font-weight:800;color:var(--primary-d);padding:12px 0;list-style:none;}
+  details.review summary::-webkit-details-marker{display:none;}
+  details.review summary::before{content:"💡 ";}
+  .review ul{margin:0 0 14px;padding-left:18px;}
+  .review li{margin:6px 0;font-weight:600;font-size:14px;color:#475569;}
+  .review b{color:var(--ink);}
+
+  /* Button */
+  .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px;}
+  .btn{
+    font-family:var(--display);font-weight:600;font-size:17px;border:none;cursor:pointer;
+    padding:14px 30px;border-radius:14px;color:#fff;
+    background:linear-gradient(135deg,var(--primary),#6366f1);
+    box-shadow:0 12px 26px -12px var(--primary);transition:.2s;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+  .btn.ghost{background:#fff;color:var(--primary-d);border:2px solid #c7d2fe;box-shadow:none;}
+
+  /* Results */
+  .results{display:none;margin-top:22px;}
+  .results.show{display:block;animation:pop .4s ease;}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+  .score-hero{
+    text-align:center;border-radius:20px;padding:26px 20px;color:#fff;
+    background:linear-gradient(135deg,#0ea5e9,#4f46e5);position:relative;overflow:hidden;
+  }
+  .score-hero .emoji{font-size:46px;line-height:1;}
+  .score-hero h3{font-family:var(--display);font-weight:700;font-size:24px;margin:8px 0 2px;}
+  .score-hero p{margin:0;font-weight:700;opacity:.95;}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+  .metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 10px;text-align:center;
+    box-shadow:0 8px 20px -16px rgba(30,41,59,.5);}
+  .metric .big{font-family:var(--display);font-weight:700;font-size:30px;color:var(--primary-d);line-height:1;}
+  .metric .lbl{font-weight:800;color:var(--muted);font-size:12px;margin-top:6px;text-transform:uppercase;letter-spacing:.5px;}
+  .breakdown{margin-top:14px;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .breakdown .row{display:flex;justify-content:space-between;align-items:center;font-weight:700;padding:7px 0;font-size:14.5px;}
+  .breakdown .row + .row{border-top:1px dashed var(--line);}
+  .breakdown .row b{color:var(--primary-d);}
+  @media (max-width:420px){.metrics{grid-template-columns:1fr;}}
+
+  .foot{text-align:center;color:var(--muted);font-weight:600;font-size:12.5px;margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>🛰️ Redes de Comunicación</h1>
+    <p class="sub">Tarea N°2 · Formación Tecnológica · Nivel: Sexto</p>
+    <div class="badges">
+      <span class="badge">📋 Total: 8 puntos</span>
+      <span class="badge">🎯 Valor: 3%</span>
+      <span class="badge">🎮 Modo juego</span>
+    </div>
+    <div class="name-row">
+      <input id="studentName" type="text" placeholder="✍️ Escribí tu nombre completo">
+    </div>
+  </header>
+
+  <!-- ACTIVIDAD 1 -->
+  <section class="card">
+    <div class="step">
+      <span class="chip">1</span>
+      <h2>Sopa de letras</h2>
+      <span class="pts-tag">4 pts</span>
+    </div>
+    <p class="desc">Encontrá las <b>6 palabras</b> sobre redes de comunicación. Mantené presionado y arrastrá sobre las letras (en línea recta: horizontal, vertical o diagonal). ¡Cada palabra se pinta de un color distinto!</p>
+
+    <div class="wordlist" id="wordlist"></div>
+
+    <div class="grid-shell">
+      <div class="grid" id="grid"></div>
+    </div>
+    <p class="hint">👆 Arrastrá de la primera a la última letra de cada palabra.</p>
+  </section>
+
+  <!-- ACTIVIDAD 2 -->
+  <section class="card">
+    <div class="step">
+      <span class="chip">2</span>
+      <h2>Completá la red correcta</h2>
+      <span class="pts-tag">4 pts</span>
+    </div>
+    <p class="desc">Elegí el <b>tipo de red de comunicación</b> que corresponde a cada descripción.</p>
+
+    <div id="blanks"></div>
+
+    <details class="review">
+      <summary>Repaso rápido (material estudiado)</summary>
+      <ul>
+        <li><b>Red móvil:</b> usa antenas y señal inalámbrica. Ofrece movilidad y acceso desde casi cualquier lugar.</li>
+        <li><b>Red fija telefónica:</b> usa cables físicos para transmitir voz. Es estable y no depende de señal inalámbrica.</li>
+        <li><b>Red satelital:</b> transmite mediante satélites en el espacio. Llega a zonas remotas, pero puede ser más costosa.</li>
+        <li><b>Red de televisión por cable:</b> transmite la señal de televisión por cables, con buena calidad de imagen y estabilidad.</li>
+      </ul>
+    </details>
+  </section>
+
+  <div class="actions">
+    <button class="btn" id="checkBtn">✅ Calificar mi tarea</button>
+    <button class="btn ghost" id="resetBtn">🔄 Empezar de nuevo</button>
+  </div>
+
+  <!-- RESULTADOS -->
+  <section class="results" id="results">
+    <div class="score-hero">
+      <div class="emoji" id="resEmoji">🎉</div>
+      <h3 id="resTitle">¡Buen trabajo!</h3>
+      <p id="resName"></p>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="big"><span id="mPts">0</span>/8</div><div class="lbl">Puntos obtenidos</div></div>
+      <div class="metric"><div class="big" id="mNota">0</div><div class="lbl">Nota / 100</div></div>
+      <div class="metric"><div class="big"><span id="mPct">0</span>%</div><div class="lbl">de 3%</div></div>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+  </section>
+
+  <p class="foot">Documento interactivo de práctica · Formación Tecnológica · Primer Semestre 2026</p>
+</div>
+
+<script>
+/* =====================================================
+   DATOS
+===================================================== */
+const WORDS = ["IP","DISPOSITIVO","PROTOCOLO","DIRECCION","INTERNET","RED"];
+const WORD_LABELS = {IP:"IP",DISPOSITIVO:"DISPOSITIVO",PROTOCOLO:"PROTOCOLO",DIRECCION:"DIRECCIÓN",INTERNET:"INTERNET",RED:"RED"};
+const WORD_COLORS = {IP:"var(--w4)",DISPOSITIVO:"var(--w5)",PROTOCOLO:"var(--w2)",DIRECCION:"var(--w1)",INTERNET:"var(--w3)",RED:"var(--w6)"};
+const SIZE = 12;
+
+const BLANKS = [
+  {text:"La __________ permite movilidad y conexión casi en cualquier lugar.", answer:"Red móvil"},
+  {text:"La __________ usa cables físicos para transmitir voz.", answer:"Red fija telefónica"},
+  {text:"La __________ llega a zonas remotas y puede ser más costosa.", answer:"Red satelital"},
+  {text:"La __________ transmite televisión a través de cable con buena calidad de imagen y estabilidad.", answer:"Red de televisión por cable"},
+];
+const OPTIONS = ["Red móvil","Red fija telefónica","Red satelital","Red de televisión por cable"];
+
+/* =====================================================
+   SOPA DE LETRAS - generación
+===================================================== */
+const DIRS = [
+  {dr:0,dc:1},{dr:1,dc:0},{dr:1,dc:1},{dr:1,dc:-1},
+  {dr:0,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1}
+];
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function buildGrid(){
+  for(let attempt=0; attempt<400; attempt++){
+    const g = Array.from({length:SIZE},()=>Array(SIZE).fill(null));
+    let ok=true;
+    const ws=[...WORDS].sort((a,b)=>b.length-a.length);
+    for(const w of ws){ if(!placeWord(g,w)){ok=false;break;} }
+    if(ok){ fillRandom(g); return g; }
+  }
+  return null;
+}
+function placeWord(g,word){
+  for(let i=0;i<400;i++){
+    const d=DIRS[Math.floor(Math.random()*DIRS.length)];
+    const r=Math.floor(Math.random()*SIZE), c=Math.floor(Math.random()*SIZE);
+    const er=r+d.dr*(word.length-1), ec=c+d.dc*(word.length-1);
+    if(er<0||er>=SIZE||ec<0||ec>=SIZE) continue;
+    let fits=true;
+    for(let k=0;k<word.length;k++){
+      const rr=r+d.dr*k, cc=c+d.dc*k;
+      if(g[rr][cc]!==null && g[rr][cc]!==word[k]){fits=false;break;}
+    }
+    if(!fits) continue;
+    for(let k=0;k<word.length;k++){ g[r+d.dr*k][c+d.dc*k]=word[k]; }
+    return true;
+  }
+  return false;
+}
+function fillRandom(g){
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)
+    if(g[r][c]===null) g[r][c]=ALPHABET[Math.floor(Math.random()*ALPHABET.length)];
+}
+
+let GRID = buildGrid();
+const foundWords = new Set();      // palabras encontradas
+const lockedCells = {};            // "r-c" -> color (celdas ya halladas)
+
+/* =====================================================
+   RENDER SOPA
+===================================================== */
+const gridEl = document.getElementById('grid');
+const wordlistEl = document.getElementById('wordlist');
+
+function renderWordList(){
+  wordlistEl.innerHTML='';
+  WORDS.forEach(w=>{
+    const t=document.createElement('span');
+    t.className='wtag'; t.id='wt-'+w;
+    t.textContent=WORD_LABELS[w];
+    if(foundWords.has(w)){ t.classList.add('done'); t.style.background=WORD_COLORS[w]; }
+    wordlistEl.appendChild(t);
+  });
+}
+function renderGrid(){
+  gridEl.style.gridTemplateColumns=`repeat(${SIZE},1fr)`;
+  gridEl.innerHTML='';
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const cell=document.createElement('div');
+    cell.className='cell'; cell.textContent=GRID[r][c];
+    cell.dataset.r=r; cell.dataset.c=c;
+    const key=r+'-'+c;
+    if(lockedCells[key]){ cell.classList.add('found'); cell.style.background=lockedCells[key]; }
+    gridEl.appendChild(cell);
+  }
+}
+renderWordList();
+renderGrid();
+
+/* =====================================================
+   SELECCIÓN POR ARRASTRE (mouse + touch)
+===================================================== */
+let selecting=false, startCell=null, tempCells=[];
+
+function cellFromPoint(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(el && el.classList.contains('cell')) return el;
+  return null;
+}
+function lineCells(a,b){
+  const dr=b.r-a.r, dc=b.c-a.c;
+  const adr=Math.abs(dr), adc=Math.abs(dc);
+  if(!(dr===0||dc===0||adr===adc)) return null;
+  const steps=Math.max(adr,adc);
+  const sr=Math.sign(dr), sc=Math.sign(dc);
+  const out=[];
+  for(let k=0;k<=steps;k++) out.push({r:a.r+sr*k,c:a.c+sc*k});
+  return out;
+}
+function clearTemp(){
+  tempCells.forEach(({r,c})=>{
+    const el=cellEl(r,c);
+    if(el && !lockedCells[r+'-'+c]) el.classList.remove('temp');
+  });
+  tempCells=[];
+}
+function cellEl(r,c){ return gridEl.children[r*SIZE+c]; }
+
+function highlight(path){
+  clearTemp();
+  if(!path) return;
+  path.forEach(({r,c})=>{
+    const el=cellEl(r,c);
+    if(el){ el.classList.add('temp'); tempCells.push({r,c}); }
+  });
+}
+
+function startSel(x,y){
+  const el=cellFromPoint(x,y);
+  if(!el) return;
+  selecting=true;
+  startCell={r:+el.dataset.r,c:+el.dataset.c};
+  highlight([startCell]);
+}
+function moveSel(x,y){
+  if(!selecting) return;
+  const el=cellFromPoint(x,y);
+  if(!el) return;
+  const cur={r:+el.dataset.r,c:+el.dataset.c};
+  const path=lineCells(startCell,cur);
+  highlight(path || [startCell]);
+}
+function endSel(){
+  if(!selecting) return;
+  selecting=false;
+  // construir palabra a partir de tempCells
+  if(tempCells.length>=2){
+    const str=tempCells.map(({r,c})=>GRID[r][c]).join('');
+    const rev=str.split('').reverse().join('');
+    let matched=null;
+    for(const w of WORDS){ if((str===w||rev===w) && !foundWords.has(w)){ matched=w; break; } }
+    if(matched){
+      foundWords.add(matched);
+      const color=WORD_COLORS[matched];
+      tempCells.forEach(({r,c})=>{
+        lockedCells[r+'-'+c]=color;
+        const el=cellEl(r,c);
+        el.classList.remove('temp'); el.classList.add('found'); el.style.background=color;
+      });
+      tempCells=[];
+      const tag=document.getElementById('wt-'+matched);
+      tag.classList.add('done'); tag.style.background=color;
+      return;
+    }
+  }
+  clearTemp();
+}
+
+gridEl.addEventListener('pointerdown',e=>{e.preventDefault();startSel(e.clientX,e.clientY);});
+window.addEventListener('pointermove',e=>{ if(selecting){e.preventDefault();moveSel(e.clientX,e.clientY);} },{passive:false});
+window.addEventListener('pointerup',()=>endSel());
+window.addEventListener('pointercancel',()=>endSel());
+
+/* =====================================================
+   COMPLETAR
+===================================================== */
+const blanksEl=document.getElementById('blanks');
+BLANKS.forEach((b,i)=>{
+  const q=document.createElement('div'); q.className='q'; q.id='q-'+i;
+  const p=document.createElement('p');
+  p.innerHTML=`<span class="num">${i+1}.</span> ${b.text}`;
+  const sel=document.createElement('select'); sel.id='sel-'+i;
+  sel.innerHTML=`<option value="">— Elegí una opción —</option>`+
+    OPTIONS.map(o=>`<option value="${o}">${o}</option>`).join('');
+  const fb=document.createElement('div'); fb.className='feedback'; fb.id='fb-'+i;
+  q.appendChild(p); q.appendChild(sel); q.appendChild(fb);
+  blanksEl.appendChild(q);
+});
+
+/* =====================================================
+   CALIFICACIÓN (según rúbrica de la tarea)
+===================================================== */
+function rubricSopa(found){          // Indicador 1
+  if(found>=5) return 4;             // 6 o 5 palabras
+  if(found===4) return 3;            // 4 palabras
+  if(found>=2) return 2;             // 3 o 2 palabras
+  return 1;                          // 1 o ninguna
+}
+function rubricComplete(correct){    // Indicador 2
+  if(correct===4) return 4;
+  if(correct===3) return 3;
+  if(correct===2) return 2;
+  return 1;                          // 1 o ninguna
+}
+
+const results=document.getElementById('results');
+
+document.getElementById('checkBtn').addEventListener('click',()=>{
+  // Indicador 1
+  const found=foundWords.size;
+  const ptsSopa=rubricSopa(found);
+
+  // Indicador 2
+  let correct=0;
+  BLANKS.forEach((b,i)=>{
+    const sel=document.getElementById('sel-'+i);
+    const q=document.getElementById('q-'+i);
+    const fb=document.getElementById('fb-'+i);
+    q.classList.remove('right','wrong');
+    if(sel.value===b.answer){
+      correct++; q.classList.add('right'); fb.textContent='✓ ¡Correcto!';
+    }else{
+      q.classList.add('wrong');
+      fb.textContent= sel.value ? `✗ La respuesta correcta es: ${b.answer}` : `✗ Sin responder. Era: ${b.answer}`;
+    }
+  });
+  const ptsComp=rubricComplete(correct);
+
+  // Totales
+  const total=ptsSopa+ptsComp;          // sobre 8
+  const nota=Math.round((total/8)*100); // base 100
+  const pct=((total/8)*3).toFixed(2);   // de 3%
+
+  // Mostrar resultados
+  document.getElementById('mPts').textContent=total;
+  document.getElementById('mNota').textContent=nota;
+  document.getElementById('mPct').textContent=pct;
+
+  const name=document.getElementById('studentName').value.trim();
+  document.getElementById('resName').textContent = name ? ('Estudiante: '+name) : 'Revisá tu desempeño abajo';
+
+  let emoji='💪', title='¡Seguí practicando!';
+  if(nota>=90){emoji='🏆';title='¡Excelente trabajo!';}
+  else if(nota>=75){emoji='🎉';title='¡Muy bien!';}
+  else if(nota>=60){emoji='👍';title='¡Buen esfuerzo!';}
+  document.getElementById('resEmoji').textContent=emoji;
+  document.getElementById('resTitle').textContent=title;
+
+  document.getElementById('breakdown').innerHTML=`
+    <div class="row"><span>🔤 Palabras encontradas en la sopa</span><b>${found}/6 → ${ptsSopa} pts</b></div>
+    <div class="row"><span>📝 Respuestas correctas (completar)</span><b>${correct}/4 → ${ptsComp} pts</b></div>
+    <div class="row"><span>⭐ Puntos totales</span><b>${total}/8</b></div>
+    <div class="row"><span>💯 Nota en base 100</span><b>${nota}</b></div>
+    <div class="row"><span>📊 Porcentaje obtenido</span><b>${pct}% de 3%</b></div>
+  `;
+
+  results.classList.add('show');
+  results.scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+/* =====================================================
+   REINICIAR
+===================================================== */
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  GRID=buildGrid();
+  foundWords.clear();
+  for(const k in lockedCells) delete lockedCells[k];
+  renderWordList(); renderGrid();
+  BLANKS.forEach((b,i)=>{
+    document.getElementById('sel-'+i).value='';
+    const q=document.getElementById('q-'+i); q.classList.remove('right','wrong');
+    document.getElementById('fb-'+i).textContent='';
+  });
+  results.classList.remove('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+</body>
+</html>
