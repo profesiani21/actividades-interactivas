@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prueba de Ejecución 6.° — El Museo del Futuro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#101a3a; --navy2:#1a2750; --indigo:#243a7a;
+    --gold:#f4b942; --gold-d:#d99a1f;
+    --teal:#2fc4b2; --teal-d:#1f9d8e;
+    --coral:#ff6f61; --coral-d:#e8503f;
+    --cream:#fff7e8; --ink:#15224a; --muted:#5b6a93;
+    --good:#2faa4d; --bad:#e23b3b;
+    --shadow:0 14px 40px rgba(6,12,35,.35);
+    --r:20px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -10%, #2b3e85 0%, transparent 55%),
+      radial-gradient(900px 500px at 105% 10%, #143a63 0%, transparent 50%),
+      linear-gradient(160deg, #0c1430 0%, #14224d 60%, #0e1838 100%);
+    background-attachment:fixed;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, #fff6 50%, transparent),
+      radial-gradient(2px 2px at 70% 60%, #fff5 50%, transparent),
+      radial-gradient(1.5px 1.5px at 45% 80%, #ffe9a8aa 50%, transparent),
+      radial-gradient(1.5px 1.5px at 85% 25%, #9ff0e6aa 50%, transparent),
+      radial-gradient(2px 2px at 30% 75%, #fff4 50%, transparent);
+    background-size:cover;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px;position:relative;z-index:2}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:linear-gradient(120deg,var(--navy2),var(--indigo));
+    border:1px solid #ffffff22;border-radius:var(--r);
+    padding:14px 18px;color:#fff;box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .badge-mep{
+    font-family:'Fredoka';font-weight:600;font-size:.72rem;letter-spacing:.5px;
+    background:var(--gold);color:#3a2a00;padding:5px 10px;border-radius:999px;text-transform:uppercase;
+  }
+  .topbar h1{font-family:'Fredoka';font-weight:600;font-size:1.15rem;margin:0;line-height:1.1}
+  .topbar small{color:#cfe0ff;font-weight:700}
+  .pts-pill{margin-left:auto;background:#ffffff14;border:1px solid #ffffff33;border-radius:999px;padding:8px 14px;font-weight:800;font-size:.95rem;display:flex;gap:8px;align-items:center}
+  .pts-pill b{color:var(--gold);font-family:'Fredoka'}
+
+  /* progress */
+  .progress-row{display:flex;align-items:center;gap:10px;margin:0 2px 18px}
+  .pbar{flex:1;height:14px;background:#0a1230;border:1px solid #ffffff22;border-radius:999px;overflow:hidden}
+  .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .pstep{color:#cfe0ff;font-weight:800;font-size:.85rem;white-space:nowrap}
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--cream);border-radius:var(--r);box-shadow:var(--shadow);
+    padding:26px 26px 24px;position:relative;border:3px solid #ffffff;
+    animation:pop .45s cubic-bezier(.2,.9,.25,1.1) both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+  .stage-tag{
+    display:inline-flex;align-items:center;gap:8px;font-family:'Fredoka';font-weight:600;
+    background:var(--teal);color:#04302b;padding:6px 14px;border-radius:999px;font-size:.82rem;margin-bottom:12px;
+  }
+  .stage-tag.c2{background:var(--gold);color:#3a2a00}
+  .stage-tag.c3{background:var(--coral);color:#fff}
+  h2.q{font-family:'Fredoka';font-weight:700;font-size:1.55rem;margin:.1em 0 .35em;color:var(--ink);line-height:1.12}
+  .lead{font-size:1.02rem;color:#41507e;margin:0 0 18px;font-weight:600}
+  .hint{background:#fff;border:2px dashed #c9d2ec;border-radius:14px;padding:12px 14px;font-size:.92rem;color:var(--muted);margin:14px 0}
+  .hint b{color:var(--indigo)}
+
+  /* buttons */
+  .btn{
+    font-family:'Fredoka';font-weight:600;font-size:1.02rem;border:none;cursor:pointer;
+    padding:14px 26px;border-radius:14px;color:#fff;
+    background:linear-gradient(120deg,var(--coral),var(--coral-d));
+    box-shadow:0 8px 0 #b73c2e, 0 14px 22px rgba(232,80,63,.35);
+    transition:transform .08s, box-shadow .08s;
+  }
+  .btn:active{transform:translateY(5px);box-shadow:0 3px 0 #b73c2e,0 8px 14px rgba(232,80,63,.3)}
+  .btn:disabled{filter:grayscale(.5) opacity(.6);cursor:not-allowed;box-shadow:0 8px 0 #999}
+  .btn.go{background:linear-gradient(120deg,var(--teal),var(--teal-d));box-shadow:0 8px 0 #167a6e,0 14px 22px rgba(47,196,178,.35)}
+  .btn.go:active{box-shadow:0 3px 0 #167a6e}
+  .btn.ghost{background:#fff;color:var(--indigo);border:2px solid #c9d2ec;box-shadow:0 6px 0 #c9d2ec}
+  .btn.ghost:active{box-shadow:0 2px 0 #c9d2ec}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;align-items:center}
+
+  /* form */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  label.fl{display:block;font-weight:800;color:var(--indigo);font-size:.86rem;margin:0 0 5px}
+  .inp{width:100%;font-family:'Nunito';font-size:1rem;font-weight:600;padding:12px 14px;border:2px solid #cdd6ef;border-radius:12px;background:#fff;color:var(--ink)}
+  .inp:focus{outline:none;border-color:var(--teal)}
+
+  /* desktop sim */
+  .desktop{background:linear-gradient(160deg,#3a78c9,#2b5fa6);border-radius:16px;padding:22px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;border:6px solid #25364f}
+  .appicon{width:108px;cursor:pointer;text-align:center;color:#fff;font-weight:800;font-size:.82rem;transition:transform .12s}
+  .appicon:hover{transform:translateY(-4px) scale(1.04)}
+  .appicon .ic{width:74px;height:74px;border-radius:18px;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:700;font-size:2rem;color:#fff;box-shadow:0 6px 14px #0004}
+  .shake{animation:shk .4s}
+  @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+  /* slide canvas */
+  .ppt{background:#fff;border:3px solid #2a3b66;border-radius:10px;aspect-ratio:16/9;padding:22px 26px;display:flex;flex-direction:column;justify-content:center;gap:10px;box-shadow:inset 0 0 0 6px #fff, 0 10px 24px #0003;overflow:auto}
+  .ppt .t1,.ppt .t2{margin:0;line-height:1.25;word-break:break-word}
+  .ppt .t1{font-size:1.5rem;font-weight:700}
+  .ppt .t2{font-size:1.05rem}
+  .ppt.cover{text-align:center}
+
+  .model{background:#fff;border:2px solid #d7d;border-color:#cdd6ef;border-radius:12px;padding:12px 14px;font-size:.95rem;color:#2a3a6b;font-weight:700;white-space:pre-wrap;line-height:1.4}
+  .typewrap textarea{width:100%;min-height:120px;font-family:'Nunito';font-size:1rem;font-weight:600;padding:12px;border:2px solid #cdd6ef;border-radius:12px;resize:vertical}
+  .typewrap textarea:focus{outline:none;border-color:var(--teal)}
+  .matchbar{height:10px;border-radius:999px;background:#e4e9f7;overflow:hidden;margin-top:8px}
+  .matchfill{height:100%;width:0;background:linear-gradient(90deg,var(--coral),var(--gold),var(--teal));transition:width .25s}
+  .matchtxt{font-weight:800;font-size:.85rem;margin-top:6px;color:var(--muted)}
+
+  /* format toolbar */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff;border:2px solid #cdd6ef;border-radius:12px;padding:10px;margin:12px 0}
+  .toolbar select{font-family:'Nunito';font-weight:700;padding:8px 10px;border:2px solid #cdd6ef;border-radius:9px;background:#fff;color:var(--ink)}
+  .tg{width:40px;height:40px;border:2px solid #cdd6ef;border-radius:9px;background:#fff;font-family:'Fredoka';font-size:1.05rem;cursor:pointer;font-weight:700}
+  .tg.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+  .tg.u{text-decoration:underline}.tg.i{font-style:italic}
+  .swatch{width:34px;height:34px;border-radius:8px;border:3px solid #fff;box-shadow:0 0 0 2px #cdd6ef;cursor:pointer}
+  .swatch.on{box-shadow:0 0 0 3px var(--ink)}
+  .parttabs{display:flex;gap:8px;margin-bottom:8px}
+  .ptab{font-family:'Fredoka';font-weight:600;padding:8px 16px;border-radius:10px 10px 0 0;border:2px solid #cdd6ef;border-bottom:none;background:#eef2fb;cursor:pointer;color:var(--muted)}
+  .ptab.on{background:#fff;color:var(--indigo)}
+  .target{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+  .chip{font-size:.8rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#eef2fb;color:#3a4a7e;border:1.5px solid #d4ddf3}
+  .chip.done{background:#dff6e6;color:#1c7a3a;border-color:#a8e2bb}
+
+  /* option pickers */
+  .opts{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 0}
+  .opt{font-family:'Fredoka';font-weight:600;padding:11px 18px;border-radius:12px;border:2px solid #cdd6ef;background:#fff;cursor:pointer;color:var(--ink);transition:.12s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.on{background:var(--teal);color:#04302b;border-color:var(--teal-d)}
+  .lbl-sm{font-weight:800;color:var(--indigo);margin:16px 0 2px}
+
+  /* video preview */
+  .vbox{background:#000;border-radius:14px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border:4px solid #2a3b66}
+  .vslide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fredoka';font-weight:600;font-size:1.4rem;text-align:center;padding:24px;opacity:0}
+  .playbtn{width:84px;height:84px;border-radius:50%;background:#ffffffdd;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--indigo);box-shadow:0 8px 20px #0006;z-index:3}
+  .playbtn:active{transform:scale(.94)}
+
+  /* ---- Escenario de animación/transición ---- */
+  .anim-stage{position:relative;overflow:hidden;border-radius:14px;border:4px solid #2a3b66;background:#0c1430;height:210px;margin:8px 0 4px;display:flex}
+  @media(max-width:620px){.anim-stage{height:170px}}
+  .anim-slide{flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2fc4b2,#1f9d8e)}
+  .anim-text{font-family:'Fredoka';font-weight:600;font-size:1.7rem;color:#fff;text-align:center;padding:18px;margin:0;text-shadow:0 2px 6px #0004}
+  .picklabel{font-family:'Nunito';font-weight:800;color:var(--teal-d);font-size:.85rem;margin-left:4px}
+
+  /* Animaciones de TEXTO */
+  @keyframes a-aparecer{0%{opacity:0;transform:scale(.9)}35%{opacity:1}100%{opacity:1;transform:none}}
+  @keyframes a-desvanecer{from{opacity:0}to{opacity:1}}
+  @keyframes a-volar{from{opacity:0;transform:translateX(-130%)}to{opacity:1;transform:none}}
+  @keyframes a-rebote{0%{opacity:0;transform:translateY(-90px)}55%{opacity:1;transform:translateY(16px)}72%{transform:translateY(-9px)}88%{transform:translateY(4px)}100%{transform:translateY(0)}}
+  @keyframes a-zoom{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+  /* Transiciones de DIAPOSITIVA */
+  @keyframes t-desvanecido{from{opacity:0}to{opacity:1}}
+  @keyframes t-empuje{from{transform:translateX(100%)}to{transform:translateX(0)}}
+  @keyframes t-cortar{0%{opacity:0}2%{opacity:1}100%{opacity:1}}
+  @keyframes t-barrido{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+  @keyframes t-cubrir{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);background:var(--navy2);color:#fff;border:1px solid #ffffff33;padding:14px 22px;border-radius:14px;font-weight:800;z-index:50;box-shadow:var(--shadow);transition:transform .4s cubic-bezier(.2,.9,.25,1.2);max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{border-color:#5fe08a}.toast.no{border-color:#ffa39a}
+
+  /* results */
+  .scoreboard{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 18px}
+  @media(max-width:620px){.scoreboard{grid-template-columns:1fr}}
+  .sc{background:#fff;border-radius:16px;padding:16px;text-align:center;border:3px solid #eef2fb}
+  .sc .big{font-family:'Fredoka';font-weight:700;font-size:2.3rem;line-height:1;color:var(--indigo)}
+  .sc small{font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-size:.72rem}
+  .sc.gold{border-color:var(--gold)}.sc.gold .big{color:var(--gold-d)}
+  .sc.teal{border-color:var(--teal)}.sc.teal .big{color:var(--teal-d)}
+  table.bd{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:6px;background:#fff;border-radius:12px;overflow:hidden}
+  table.bd th,table.bd td{padding:9px 10px;text-align:left;border-bottom:1px solid #eef2fb}
+  table.bd th{background:var(--indigo);color:#fff;font-family:'Fredoka';font-weight:600;font-size:.82rem}
+  table.bd td.n{text-align:center;font-weight:800;width:54px}
+  .lv{font-weight:800;border-radius:999px;padding:2px 9px;font-size:.78rem;display:inline-block}
+  .lv0{background:#fde2e0;color:#b3261c}.lv1{background:#fdeccd;color:#9a6500}
+  .lv2{background:#e6eefb;color:#234b9a}.lv3{background:#dff6e6;color:#1c7a3a}
+  .et-row td{background:#f3f6fd;font-family:'Fredoka';font-weight:600;color:var(--indigo)}
+  .adminhdr{font-size:.9rem;color:#3a4a7e;background:#fff;border:2px solid #eef2fb;border-radius:12px;padding:12px 14px;margin-bottom:14px;line-height:1.6}
+  .adminhdr b{color:var(--indigo)}
+  .conf{margin-top:18px;background:#fff;border:2px dashed #cdd6ef;border-radius:12px;padding:12px 14px;font-size:.82rem;color:var(--muted)}
+  .teacher{position:fixed;right:14px;bottom:14px;z-index:40}
+  .teacher button{font-family:'Nunito';font-weight:800;font-size:.78rem;background:#ffffff22;color:#dce6ff;border:1px solid #ffffff33;border-radius:10px;padding:7px 12px;cursor:pointer}
+  .center{text-align:center}
+  .emoji{font-size:3rem;line-height:1}
+  ul.clean{margin:8px 0 0;padding-left:20px}
+  ul.clean li{margin:5px 0;font-weight:600;color:#41507e}
+  @media print{
+    body{background:#fff!important}
+    .topbar,.teacher,.actions,.progress-row,.conf{display:none!important}
+    body::before{display:none}
+    .card{box-shadow:none;border:1px solid #ccc}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="badge-mep">MEP · Prueba de ejecución</span>
+    <div>
+      <h1>El Museo del Futuro 🚀</h1>
+      <small>Formación Tecnológica · 6.° año · I Semestre 2026</small>
+    </div>
+    <div class="pts-pill">⏱️ 80 min · <b>51 pts</b> · 20%</div>
+  </div>
+
+  <div class="progress-row" id="progressRow" style="display:none">
+    <span class="pstep" id="pstep">Etapa 1</span>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <span class="pstep" id="ppct">0%</span>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="teacher"><button onclick="teacherReset()">🔑 Docente: reiniciar</button></div>
+
+<script>
+/* ============================================================
+   PRUEBA DE EJECUCIÓN INTERACTIVA — 6.° AÑO
+   Asignatura: Formación Tecnológica
+   Total: 51 pts (17 indicadores × escala 0–3)  ·  Valor: 20%
+   Basada en los lineamientos MEP (La prueba de ejecución 2026)
+   ============================================================ */
+
+const VALOR_PORCENTUAL = 20;
+const TOTAL_PUNTOS = 51;
+const STORE_KEY = "prueba6_resultado";
+
+const NIVEL = {
+  0:{t:"No realizado",  c:"lv0"},
+  1:{t:"En proceso",    c:"lv1"},
+  2:{t:"Logro parcial", c:"lv2"},
+  3:{t:"Logrado",       c:"lv3"}
+};
+
+// Slides (contenido tomado de "El museo del futuro")
+const SLIDES = {
+  1:{cover:true,
+     t1:'Escuela "Futuro Brillante"',
+     t2:'Estudiante:\nSección:',
+     model:'Escuela "Futuro Brillante"\nEstudiante:\nSección:',
+     fmt:[
+       {part:"Texto 1 (título)", req:{font:"Berlin Sans FB Demi",color:"Rojo",italic:true,underline:true}},
+       {part:"Texto 2 (datos)",  req:{font:"Century Gothic",size:"32",bold:true}}
+     ], nActions:7, bands:[0,1,1,1,2,2,2,3]},
+  2:{t1:'El museo del futuro',
+     t2:'Un grupo de estudiantes visitó un museo muy especial durante una excursión escolar. En lugar de cuadros antiguos, el museo mostraba inventos del futuro creados por niños.',
+     model:'Un grupo de estudiantes visitó un museo muy especial durante una excursión escolar. En lugar de cuadros antiguos, el museo mostraba inventos del futuro creados por niños.',
+     fmt:[
+       {part:"Texto 1 (título)", req:{font:"Broadway",color:"Verde",underline:true}},
+       {part:"Texto 2 (párrafo)",req:{font:"Britannic Bold",color:"Azul",italic:true}}
+     ], nActions:6, bands:[0,1,1,2,2,2,3]},
+  3:{t1:'Las ideas de los niños',
+     t2:'Unos hablaron de la contaminación, otros de los animales marinos en peligro. También propusieron acciones sencillas para cuidar el agua.',
+     model:'Unos hablaron de la contaminación, otros de los animales marinos en peligro. También propusieron acciones sencillas para cuidar el agua.',
+     fmt:[
+       {part:"Texto 1 (título)", req:{font:"Arial Narrow",size:"40",italic:true}},
+       {part:"Texto 2 (párrafo)",req:{font:"Arial Black",color:"Anaranjado"}}
+     ], nActions:5, bands:[0,1,2,2,2,3]},
+  4:{t1:'Un mensaje del mar',
+     t2:'Dentro había un mensaje que pedía ayuda para proteger una ciudad submarina. Cada equipo explicó el problema.',
+     model:'Dentro había un mensaje que pedía ayuda para proteger una ciudad submarina. Cada equipo explicó el problema.',
+     fmt:[
+       {part:"Texto 1 (título)", req:{font:"Arial Black",size:"36",italic:true,bold:true}}
+     ], nActions:4, bands:[0,1,2,2,3]}
+};
+
+const FONTS = ["(Fuente)","Berlin Sans FB Demi","Century Gothic","Broadway","Britannic Bold","Arial Narrow","Arial Black","Comic Sans MS","Times New Roman","Verdana"];
+const FONT_FALL = {
+  "Berlin Sans FB Demi":'"Trebuchet MS",sans-serif',"Century Gothic":'"Century Gothic",Questrial,sans-serif',
+  "Broadway":'Broadway,Stencil,fantasy',"Britannic Bold":'"Britannic Bold","Arial Black",sans-serif',
+  "Arial Narrow":'"Arial Narrow",Arial,sans-serif',"Arial Black":'"Arial Black",Arial,sans-serif',
+  "Comic Sans MS":'"Comic Sans MS",cursive',"Times New Roman":'"Times New Roman",serif',"Verdana":"Verdana,sans-serif"
+};
+const SIZES = ["(Tamaño)","12","18","24","28","32","36","40","44"];
+const COLORS = [["Rojo","#e23b3b"],["Verde","#2faa4d"],["Azul","#2b6cd4"],["Anaranjado","#f08a24"],["Negro","#1c1c1c"],["Morado","#8b3fc0"]];
+const ANIMS = ["Aparecer","Desvanecer","Volar desde la izquierda","Rebote","Zoom"];
+const TRANS = ["Desvanecido","Empuje","Cortar","Barrido","Cubrir"];
+
+/* ---------- Estado ---------- */
+const state = { admin:{}, scores:{}, idx:0, openAttempts:0 };
+
+/* ---------- Misiones (17 indicadores) ---------- */
+const M = [
+  {etapa:1,key:"login",  ind:"Inicia sesión con sus datos", render:rLogin},
+  {etapa:1,key:"openppt",ind:"Abre el programa Microsoft PowerPoint", render:rOpen},
+  {etapa:2,key:"type1",  ind:"Digita la diapositiva 1", render:()=>rType(1)},
+  {etapa:2,key:"fmt1",   ind:"Aplica el formato de la diapositiva 1 (7 acciones)", render:()=>rFmt(1)},
+  {etapa:2,key:"type2",  ind:"Digita la diapositiva 2", render:()=>rType(2)},
+  {etapa:2,key:"fmt2",   ind:"Aplica el formato de la diapositiva 2 (6 acciones)", render:()=>rFmt(2)},
+  {etapa:2,key:"type3",  ind:"Digita la diapositiva 3", render:()=>rType(3)},
+  {etapa:2,key:"fmt3",   ind:"Aplica el formato de la diapositiva 3 (5 acciones)", render:()=>rFmt(3)},
+  {etapa:2,key:"type4",  ind:"Digita la diapositiva 4", render:()=>rType(4)},
+  {etapa:2,key:"fmt4",   ind:"Aplica el formato de la diapositiva 4 (4 acciones)", render:()=>rFmt(4)},
+  {etapa:2,key:"anim1",  ind:"Agrega animación y transición a la diapositiva 1", render:()=>rAnim(1)},
+  {etapa:2,key:"anim2",  ind:"Agrega animación y transición a la diapositiva 2", render:()=>rAnim(2)},
+  {etapa:2,key:"anim3",  ind:"Agrega animación y transición a la diapositiva 3", render:()=>rAnim(3)},
+  {etapa:2,key:"anim4",  ind:"Agrega animación y transición a la diapositiva 4", render:()=>rAnim(4)},
+  {etapa:2,key:"video",  ind:'Convierte la presentación en video "Prueba 6"', render:rVideo},
+  {etapa:3,key:"close",  ind:"Cierra el programa Microsoft PowerPoint", render:rClose},
+  {etapa:3,key:"play",   ind:"Abre el video y lo muestra", render:rPlay}
+];
+
+/* ============================================================ */
+const app = ()=>document.getElementById("app");
+function toast(msg,type){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show "+(type||"");setTimeout(()=>t.className="toast "+(type||""),2200);}
+function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();}
+function lev(a,b){a=norm(a);b=norm(b);const m=a.length,n=b.length;if(!m)return n;if(!n)return m;const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);}return d[m][n];}
+function ratio(a,b){const L=Math.max(norm(a).length,norm(b).length)||1;return 1-lev(a,b)/L;}
+
+function updateProgress(){
+  document.getElementById("progressRow").style.display="flex";
+  const pct=Math.round(state.idx/M.length*100);
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("ppct").textContent=pct+"%";
+  document.getElementById("pstep").textContent= state.idx<M.length ? ("Etapa "+M[state.idx].etapa) : "¡Listo!";
+}
+
+function finish(key,points){
+  state.scores[key]=Math.max(0,Math.min(3,points));
+  state.idx++;
+  if(points>=3) toast("¡Misión completada! ⭐⭐⭐","ok");
+  else if(points>=1) toast("Misión completada ✓","ok");
+  else toast("Continuemos…","no");
+  if(state.idx>=M.length){ updateProgress(); return showResults(); }
+  updateProgress();
+  M[state.idx].render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ===================== PANTALLAS ===================== */
+
+function rIntro(){
+  app().innerHTML=`
+  <div class="card center">
+    <div class="emoji">🏛️🤖</div>
+    <h2 class="q">Bienvenido al Museo del Futuro</h2>
+    <p class="lead">Vas a demostrar lo que aprendiste creando una presentación digital, ¡como en un videojuego!
+    Realizarás <b>17 misiones</b> en 3 etapas. Cada misión vale hasta <b>3 puntos</b> (total <b>51 pts = 20%</b>).</p>
+    <div class="hint" style="text-align:left">
+      <b>Instrucciones generales</b>
+      <ul class="clean">
+        <li>Lee con atención cada misión antes de responder.</li>
+        <li>La prueba es individual y se puede realizar <b>una sola vez</b>.</li>
+        <li>Al terminar, verás tu calificación de inmediato.</li>
+        <li>Si necesitas ayuda, levanta la mano y espera al docente.</li>
+      </ul>
+    </div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn go" onclick="startGame()">🚀 Comenzar la prueba</button>
+    </div>
+  </div>`;
+}
+function startGame(){ state.idx=0; updateProgress(); M[0].render(); }
+
+/* --- 1.1 Login --- */
+function rLogin(){
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag">🟦 Etapa 1 · Misión 1</span>
+    <h2 class="q">Inicia sesión</h2>
+    <p class="lead">Completa tus datos para iniciar sesión en la computadora del museo.</p>
+    <div class="grid2">
+      <div><label class="fl">Nombre de la escuela</label><input class="inp" id="f_esc" placeholder="Escribe el nombre de tu escuela"></div>
+      <div><label class="fl">Nombre de la persona estudiante</label><input class="inp" id="f_est" placeholder="Tu nombre completo"></div>
+      <div><label class="fl">Sección</label><input class="inp" id="f_sec" placeholder="Ej.: 6-1"></div>
+      <div><label class="fl">Fecha</label><input class="inp" id="f_fec" type="date"></div>
+    </div>
+    <div class="actions"><button class="btn go" onclick="doLogin()">🔓 Iniciar sesión</button></div>
+  </div>`;
+  const d=new Date();document.getElementById("f_fec").value=d.toISOString().slice(0,10);
+}
+function doLogin(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
+  state.admin={escuela:v("f_esc"),estudiante:v("f_est"),seccion:v("f_sec"),fecha:v("f_fec")};
+  if(!state.admin.estudiante){ toast("Escribe tu nombre para continuar","no"); return; }
+  finish("login",3);
+}
+
+/* --- 1.2 Abrir PowerPoint --- */
+function rOpen(){
+  const apps=[
+    {n:"Word",c:"#2b579a",t:"W"},{n:"Excel",c:"#217346",t:"X"},
+    {n:"PowerPoint",c:"#c43e1c",t:"P"},{n:"Paint",c:"#7a4fb5",t:"🎨"},
+    {n:"Navegador",c:"#1a73e8",t:"🌐"}
+  ];
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag">🟦 Etapa 1 · Misión 2</span>
+    <h2 class="q">Abre Microsoft PowerPoint</h2>
+    <p class="lead">Haz clic en el ícono correcto del escritorio para abrir el programa de presentaciones.</p>
+    <div class="desktop" id="dsk">
+      ${apps.map((a,i)=>`<div class="appicon" data-app="${a.n}" onclick="clickApp('${a.n}',${i})">
+        <div class="ic" style="background:${a.c}">${a.t}</div>${a.n}</div>`).join("")}
+    </div>
+    <div class="hint">💡 PowerPoint es el programa de color <b>anaranjado/rojo</b> con la letra <b>P</b>.</div>
+  </div>`;
+}
+function clickApp(name,i){
+  if(name==="PowerPoint"){
+    const pts = state.openAttempts===0?3 : state.openAttempts===1?2:1;
+    finish("openppt",pts);
+  } else {
+    state.openAttempts++;
+    const el=document.querySelectorAll(".appicon")[i];
+    el.classList.add("shake");setTimeout(()=>el.classList.remove("shake"),420);
+    toast("Ese no es PowerPoint, sigue buscando 🔎","no");
+  }
+}
+
+/* --- 2.x Digitar --- */
+function rType(n){
+  const s=SLIDES[n];
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c2">🟨 Etapa 2 · Diapositiva ${n}</span>
+    <h2 class="q">Digita la diapositiva ${n}</h2>
+    <p class="lead">Escribe en el cuadro el mismo texto que aparece en el modelo. ¡Cuida la ortografía!</p>
+    <label class="fl">📄 Texto modelo</label>
+    <div class="model">${s.model.replace(/</g,"&lt;")}</div>
+    <div class="typewrap" style="margin-top:12px">
+      <label class="fl">⌨️ Tu texto</label>
+      <textarea id="ta" placeholder="Escribe aquí…" oninput="liveMatch(${n})"></textarea>
+      <div class="matchbar"><div class="matchfill" id="mf"></div></div>
+      <div class="matchtxt" id="mt">Coincidencia: 0%</div>
+    </div>
+    <div class="actions"><button class="btn go" onclick="doType(${n})">✅ Listo, continuar</button></div>
+  </div>`;
+}
+function liveMatch(n){
+  const r=Math.round(Math.max(0,ratio(document.getElementById("ta").value,SLIDES[n].model))*100);
+  document.getElementById("mf").style.width=r+"%";
+  document.getElementById("mt").textContent="Coincidencia: "+r+"%";
+}
+function doType(n){
+  const r=Math.max(0,ratio(document.getElementById("ta").value,SLIDES[n].model));
+  let p = r>=0.95?3 : r>=0.75?2 : r>=0.40?1 : 0;
+  finish("type"+n,p);
+}
+
+/* --- 2.x Formato --- */
+let fmtState=null;
+function rFmt(n){
+  const s=SLIDES[n];
+  fmtState={n, parts:s.fmt.map(()=>({font:"",size:"",color:"",bold:false,italic:false,underline:false})), active:0};
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c2">🟨 Etapa 2 · Diapositiva ${n}</span>
+    <h2 class="q">Aplica el formato (${s.nActions} acciones)</h2>
+    <p class="lead">Selecciona cada texto y aplica con los íconos de formato lo que se solicita en las fichas verdes.</p>
+    <div class="parttabs" id="ptabs">
+      ${s.fmt.map((f,i)=>`<div class="ptab ${i===0?'on':''}" onclick="setPart(${i})">${f.part}</div>`).join("")}
+    </div>
+    <div class="ppt ${s.cover?'cover':''}" style="margin-bottom:6px">
+      <p class="t1" id="pv0">${(s.t1||"").replace(/</g,"&lt;")}</p>
+      ${s.fmt.length>1?`<p class="t2" id="pv1">${(s.t2||"").replace(/</g,"&lt;")}</p>`:""}
+    </div>
+    <div class="toolbar">
+      <select id="selFont" onchange="applyFmt('font',this.value)">${FONTS.map(f=>`<option>${f}</option>`).join("")}</select>
+      <select id="selSize" onchange="applyFmt('size',this.value)">${SIZES.map(f=>`<option>${f}</option>`).join("")}</select>
+      <button class="tg" id="tgB" onclick="applyFmt('bold')"><b>N</b></button>
+      <button class="tg i" id="tgI" onclick="applyFmt('italic')">C</button>
+      <button class="tg u" id="tgU" onclick="applyFmt('underline')">S</button>
+      <span style="display:flex;gap:6px;align-items:center;margin-left:4px">
+        ${COLORS.map(c=>`<div class="swatch" title="${c[0]}" style="background:${c[1]}" onclick="applyFmt('color','${c[0]}')"></div>`).join("")}
+      </span>
+    </div>
+    <label class="fl">🎯 Formato solicitado para <span id="partName">${s.fmt[0].part}</span></label>
+    <div class="target" id="tg"></div>
+    <div class="actions"><button class="btn go" onclick="doFmt()">✅ Listo, continuar</button></div>
+  </div>`;
+  renderTargets();
+}
+function setPart(i){ fmtState.active=i; document.querySelectorAll(".ptab").forEach((t,k)=>t.classList.toggle("on",k===i));
+  document.getElementById("partName").textContent=SLIDES[fmtState.n].fmt[i].part; syncToolbar(); renderTargets(); }
+function syncToolbar(){
+  const p=fmtState.parts[fmtState.active];
+  document.getElementById("selFont").value=p.font||"(Fuente)";
+  document.getElementById("selSize").value=p.size||"(Tamaño)";
+  document.getElementById("tgB").classList.toggle("on",p.bold);
+  document.getElementById("tgI").classList.toggle("on",p.italic);
+  document.getElementById("tgU").classList.toggle("on",p.underline);
+}
+function applyFmt(attr,val){
+  const p=fmtState.parts[fmtState.active];
+  if(attr==="font") p.font = val==="(Fuente)"?"":val;
+  else if(attr==="size") p.size = val==="(Tamaño)"?"":val;
+  else if(attr==="color") p.color = (p.color===val)?"":val;
+  else p[attr]=!p[attr];
+  syncToolbar(); renderPreview(); renderTargets();
+}
+function renderPreview(){
+  fmtState.parts.forEach((p,i)=>{
+    const el=document.getElementById("pv"+i); if(!el)return;
+    el.style.fontFamily = p.font?`"${p.font}",${FONT_FALL[p.font]||"sans-serif"}`:"";
+    el.style.color = p.color?(COLORS.find(c=>c[0]===p.color)||[])[1]||"":"";
+    el.style.fontSize = p.size?(parseInt(p.size)/1.4+"px"):"";
+    el.style.fontWeight = p.bold?"800":"";
+    el.style.fontStyle = p.italic?"italic":"";
+    el.style.textDecoration = p.underline?"underline":"";
+  });
+}
+function renderTargets(){
+  const s=SLIDES[fmtState.n], i=fmtState.active, req=s.fmt[i].req, cur=fmtState.parts[i];
+  const chips=[];
+  for(const k in req){
+    let label,done;
+    if(k==="font"){label="Fuente: "+req.font;done=cur.font===req.font;}
+    else if(k==="size"){label="Tamaño: "+req.size;done=cur.size===req.size;}
+    else if(k==="color"){label="Color: "+req.color;done=cur.color===req.color;}
+    else if(k==="bold"){label="Negrita";done=cur.bold;}
+    else if(k==="italic"){label="Cursiva";done=cur.italic;}
+    else if(k==="underline"){label="Subrayado";done=cur.underline;}
+    chips.push(`<span class="chip ${done?'done':''}">${done?'✓ ':''}${label}</span>`);
+  }
+  document.getElementById("tg").innerHTML=chips.join("");
+}
+function doFmt(){
+  const s=SLIDES[fmtState.n];
+  let correct=0;
+  s.fmt.forEach((f,i)=>{
+    const req=f.req, cur=fmtState.parts[i];
+    for(const k in req){
+      if(k==="font"&&cur.font===req.font)correct++;
+      else if(k==="size"&&cur.size===req.size)correct++;
+      else if(k==="color"&&cur.color===req.color)correct++;
+      else if((k==="bold"||k==="italic"||k==="underline")&&cur[k]===true)correct++;
+    }
+  });
+  const pts=s.bands[Math.min(correct,s.nActions)];
+  finish("fmt"+fmtState.n,pts);
+}
+
+/* --- 2.x Animación + transición (con vista previa visual) --- */
+let animSel=null;
+const ANIM_KEY={"Aparecer":"aparecer","Desvanecer":"desvanecer","Volar desde la izquierda":"volar","Rebote":"rebote","Zoom":"zoom"};
+const TRANS_KEY={"Desvanecido":"desvanecido","Empuje":"empuje","Cortar":"cortar","Barrido":"barrido","Cubrir":"cubrir"};
+function rAnim(n){
+  animSel={anim:"",trans:""};
+  const s=SLIDES[n];
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c2">🟨 Etapa 2 · Diapositiva ${n}</span>
+    <h2 class="q">Animación y transición</h2>
+    <p class="lead">Elige <b>una animación</b> para los textos y <b>una transición</b> para la diapositiva ${n}. ¡Mira cómo se ve el efecto en la pantalla!</p>
+    <div class="anim-stage">
+      <div class="anim-slide" id="animSlide">
+        <p class="anim-text" id="animText">${esc(s.t1||"El museo del futuro")}</p>
+      </div>
+    </div>
+    <div class="lbl-sm">✨ Animación de los textos <span class="picklabel" id="aLabel"></span></div>
+    <div class="opts" id="aOpts">${ANIMS.map(a=>`<button class="opt" onclick="pickAnim('anim','${a}',this)">${a}</button>`).join("")}</div>
+    <div class="lbl-sm">🎬 Transición de la diapositiva <span class="picklabel" id="tLabel"></span></div>
+    <div class="opts" id="tOpts">${TRANS.map(t=>`<button class="opt" onclick="pickAnim('trans','${t}',this)">${t}</button>`).join("")}</div>
+    <div class="actions">
+      <button class="btn ghost" onclick="replayBoth()">🔁 Volver a ver</button>
+      <button class="btn go" onclick="doAnim(${n})">✅ Aplicar y continuar</button>
+    </div>
+  </div>`;
+}
+function playEffect(elId,prefix,slug){
+  const el=document.getElementById(elId); if(!el||!slug)return;
+  el.style.animation="none"; void el.offsetWidth;
+  el.style.animation=`${prefix}-${slug} .85s both`;
+}
+function pickAnim(type,val,btn){
+  animSel[type]=val;
+  btn.parentElement.querySelectorAll(".opt").forEach(o=>o.classList.remove("on"));
+  btn.classList.add("on");
+  if(type==="anim"){ document.getElementById("aLabel").textContent="· "+val; playEffect("animText","a",ANIM_KEY[val]); }
+  else { document.getElementById("tLabel").textContent="· "+val; playEffect("animSlide","t",TRANS_KEY[val]); }
+}
+function replayBoth(){
+  if(!animSel.anim && !animSel.trans){ toast("Primero elige una animación o transición","no"); return; }
+  if(animSel.trans) playEffect("animSlide","t",TRANS_KEY[animSel.trans]);
+  if(animSel.anim) setTimeout(()=>playEffect("animText","a",ANIM_KEY[animSel.anim]), animSel.trans?420:0);
+}
+function doAnim(n){
+  let p = (animSel.anim&&animSel.trans)?3 : (animSel.anim||animSel.trans)?2 : 0;
+  finish("anim"+n,p);
+}
+
+/* --- 2.15 Video --- */
+let vidStep=0;
+function rVideo(){
+  vidStep=0;
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c2">🟨 Etapa 2 · Misión final</span>
+    <h2 class="q">Convierte la presentación en video</h2>
+    <p class="lead">Sigue los pasos para exportar tu presentación como un video.</p>
+    <div id="vstep"></div>
+  </div>`;
+  renderVStep();
+}
+function renderVStep(){
+  const c=document.getElementById("vstep");
+  if(vidStep===0){
+    c.innerHTML=`<div class="hint">Paso 1: ve al menú para exportar.</div>
+      <div class="actions"><button class="btn ghost" onclick="vidStep=1;renderVStep()">📁 Archivo → Exportar</button></div>`;
+  } else if(vidStep===1){
+    c.innerHTML=`<div class="hint">Paso 2: elige el tipo de exportación.</div>
+      <div class="opts">
+        <button class="opt" onclick="toast('Esa opción crea un PDF, no un video','no')">Crear documento PDF</button>
+        <button class="opt" onclick="vidStep=2;renderVStep()">🎥 Crear un video</button>
+        <button class="opt" onclick="toast('Eso solo cambia el formato del archivo','no')">Cambiar tipo de archivo</button>
+      </div>`;
+  } else if(vidStep===2){
+    c.innerHTML=`<div class="hint">Paso 3: escribe el nombre del archivo y exporta.<br>El nombre debe ser exactamente <b>Prueba 6</b>.</div>
+      <label class="fl">Nombre del video</label>
+      <input class="inp" id="vname" placeholder="Escribe el nombre del archivo">
+      <div class="actions"><button class="btn go" onclick="doVideo()">💾 Exportar video</button></div>`;
+  }
+}
+function doVideo(){
+  const name=norm(document.getElementById("vname").value);
+  let p = name==="prueba 6"?3 : name?2 : 0;
+  if(!name){ toast("Escribe un nombre para el video","no"); return; }
+  finish("video",p);
+}
+
+/* --- 3.1 Cerrar --- */
+function rClose(){
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c3">🟥 Etapa 3 · Cierre</span>
+    <h2 class="q">Cierra Microsoft PowerPoint</h2>
+    <p class="lead">Cierra el programa correctamente, guardando tu trabajo.</p>
+    <div class="ppt" style="aspect-ratio:auto;min-height:120px;justify-content:flex-start">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#c43e1c;color:#fff;margin:-22px -26px 14px;padding:10px 16px;border-radius:7px 7px 0 0;font-family:'Fredoka';font-weight:600">
+        <span>Prueba 6 — PowerPoint</span>
+        <span style="cursor:pointer;font-weight:800;background:#0003;padding:2px 10px;border-radius:6px" onclick="askClose()">✕</span>
+      </div>
+      <p style="color:#5b6a93;font-weight:700;margin:6px 0">Haz clic en la <b>✕</b> de la esquina para cerrar el programa.</p>
+    </div>
+  </div>`;
+}
+function askClose(){
+  const c=app().querySelector(".card");
+  const box=document.createElement("div");
+  box.className="hint";box.style.borderColor="#f4b942";
+  box.innerHTML=`<b>¿Deseas guardar los cambios antes de cerrar?</b>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn go" onclick="finish('close',3)">💾 Guardar y cerrar</button>
+      <button class="btn ghost" onclick="finish('close',2)">Cerrar sin guardar</button>
+    </div>`;
+  c.appendChild(box);box.scrollIntoView({behavior:"smooth"});
+}
+
+/* --- 3.2 Reproducir video --- */
+function rPlay(){
+  app().innerHTML=`
+  <div class="card">
+    <span class="stage-tag c3">🟥 Etapa 3 · Cierre</span>
+    <h2 class="q">Abre tu video y muéstralo</h2>
+    <p class="lead">Reproduce el video "Prueba 6" para mostrar tu trabajo a la persona docente.</p>
+    <div class="vbox" id="vbox">
+      <div class="vslide" id="vs0" style="background:linear-gradient(135deg,#243a7a,#101a3a)">Escuela "Futuro Brillante"</div>
+      <div class="vslide" id="vs1" style="background:linear-gradient(135deg,#2fc4b2,#1f9d8e)">El museo del futuro 🏛️</div>
+      <div class="vslide" id="vs2" style="background:linear-gradient(135deg,#f4b942,#d99a1f)">Las ideas de los niños 🌊</div>
+      <div class="vslide" id="vs3" style="background:linear-gradient(135deg,#ff6f61,#e8503f)">Un mensaje del mar 🐠</div>
+      <button class="playbtn" id="playb" onclick="playVideo()">▶</button>
+    </div>
+  </div>`;
+}
+function playVideo(){
+  document.getElementById("playb").style.display="none";
+  const slides=["vs0","vs1","vs2","vs3"];
+  slides.forEach((id,i)=>{
+    setTimeout(()=>{
+      slides.forEach(s=>document.getElementById(s).style.opacity=0);
+      const el=document.getElementById(id);el.style.transition="opacity .5s";el.style.opacity=1;
+    }, i*1100);
+  });
+  setTimeout(()=>finish("play",3), slides.length*1100+400);
+}
+
+/* ===================== RESULTADOS ===================== */
+function calc(){
+  let pts=0; M.forEach(m=>pts+=(state.scores[m.key]||0));
+  const calif=Math.round(pts*100/TOTAL_PUNTOS);
+  const porc=Math.round(calif*VALOR_PORCENTUAL/100*100)/100;
+  return {pts,calif,porc};
+}
+function showResults(){
+  document.getElementById("progressRow").style.display="none";
+  const r=calc();
+  let etapaActual=0, rows="";
+  M.forEach(m=>{
+    if(m.etapa!==etapaActual){etapaActual=m.etapa;
+      rows+=`<tr class="et-row"><td colspan="4">Etapa ${m.etapa}${m.etapa===1?' — Acceso':m.etapa===2?' — Creación de la presentación':' — Cierre'}</td></tr>`;}
+    const sc=state.scores[m.key]||0;
+    rows+=`<tr><td>${m.ind}</td><td class="n">3</td><td class="n">${sc}</td><td><span class="lv ${NIVEL[sc].c}">${NIVEL[sc].t}</span></td></tr>`;
+  });
+  const a=state.admin;
+  let msg, emo;
+  if(r.calif>=90){msg="¡Excelente trabajo! Dominas la creación de presentaciones.";emo="🏆";}
+  else if(r.calif>=70){msg="¡Muy bien! Lograste la mayoría de las acciones.";emo="🎉";}
+  else if(r.calif>=50){msg="Buen esfuerzo. Repasa el formato y las animaciones con tu docente.";emo="💪";}
+  else {msg="Sigue practicando. Tu docente te acompañará a mejorar.";emo="🌱";}
+
+  app().innerHTML=`
+  <div class="card">
+    <div class="center"><div class="emoji">${emo}</div>
+      <h2 class="q">¡Prueba finalizada!</h2>
+      <p class="lead">${msg}</p></div>
+
+    <div class="adminhdr">
+      <b>Escuela:</b> ${esc(a.escuela)||"—"} &nbsp;·&nbsp; <b>Estudiante:</b> ${esc(a.estudiante)||"—"} &nbsp;·&nbsp; <b>Sección:</b> ${esc(a.seccion)||"—"}<br>
+      <b>Fecha:</b> ${esc(a.fecha)||"—"} &nbsp;·&nbsp; <b>Asignatura:</b> Formación Tecnológica · 6.° año<br>
+      <b>Duración:</b> 80 min &nbsp;·&nbsp; <b>Puntuación total:</b> ${TOTAL_PUNTOS} pts &nbsp;·&nbsp; <b>Valor porcentual:</b> ${VALOR_PORCENTUAL}%
+    </div>
+
+    <div class="scoreboard">
+      <div class="sc"><div class="big">${r.pts}<span style="font-size:1.1rem;color:#9aa6c9">/${TOTAL_PUNTOS}</span></div><small>Puntos obtenidos</small></div>
+      <div class="sc gold"><div class="big">${r.calif}</div><small>Calificación (1–100)</small></div>
+      <div class="sc teal"><div class="big">${r.porc}%</div><small>Porcentaje obtenido (de ${VALOR_PORCENTUAL}%)</small></div>
+    </div>
+
+    <label class="fl">📋 Detalle por indicador (escala de desempeño 0–3)</label>
+    <table class="bd">
+      <thead><tr><th>Indicador</th><th class="n">Pts</th><th class="n">Obt.</th><th>Nivel</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="conf">
+      <b>Cálculos (según lineamientos MEP):</b><br>
+      Calificación = (Puntos obtenidos × 100) ÷ Total de puntos = (${r.pts} × 100) ÷ ${TOTAL_PUNTOS} = <b>${r.calif}</b><br>
+      Porcentaje = (Calificación × Valor porcentual) ÷ 100 = (${r.calif} × ${VALOR_PORCENTUAL}) ÷ 100 = <b>${r.porc}%</b>
+    </div>
+
+    <div class="actions">
+      <button class="btn go" onclick="window.print()">🖨️ Guardar / imprimir resultado</button>
+    </div>
+    <p style="color:var(--muted);font-weight:700;font-size:.85rem;margin-top:14px">🔒 Esta prueba ya fue resuelta y no puede repetirse. La persona docente puede reiniciarla para el siguiente estudiante con el botón inferior.</p>
+  </div>`;
+  saveResult();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderLocked(saved){
+  // reconstruye estado mínimo para mostrar resultado guardado
+  state.admin=saved.admin||{}; state.scores=saved.scores||{};
+  showResults();
+}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ===================== PERSISTENCIA (una sola vez) ===================== */
+async function saveResult(){
+  const payload={admin:state.admin,scores:state.scores,ts:Date.now()};
+  try{ if(window.storage&&window.storage.set) await window.storage.set(STORE_KEY,JSON.stringify(payload)); }catch(e){}
+}
+async function loadResult(){
+  try{ if(window.storage&&window.storage.get){ const r=await window.storage.get(STORE_KEY); if(r&&r.value) return JSON.parse(r.value);} }catch(e){}
+  return null;
+}
+async function teacherReset(){
+  if(!confirm("¿Reiniciar la prueba para un nuevo estudiante? Se borrará el resultado guardado.")) return;
+  try{ if(window.storage&&window.storage.delete) await window.storage.delete(STORE_KEY); }catch(e){}
+  state.admin={};state.scores={};state.idx=0;state.openAttempts=0;
+  document.getElementById("progressRow").style.display="none";
+  rIntro();window.scrollTo({top:0});
+}
+
+/* ===================== INIT ===================== */
+(async function init(){
+  const saved=await loadResult();
+  if(saved){ renderLocked(saved); }
+  else { rIntro(); }
+})();
+</script>
+</body>
+</html>
